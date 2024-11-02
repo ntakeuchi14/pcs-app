@@ -19,7 +19,7 @@
 
     <div v-else>
       <v-row v-if="isAttach(item.data)">
-        <v-col cols="auto" class="d-inline-block text-truncate" style="max-width: 400px;">{{ isAttach(item.data) === 'ja'
+        <v-col cols="auto" class="d-inline-block text-truncate" style="max-width: 400px;">{{ isAttach(item.data) === LANG_JAPANESE
           ?
           item.data.filename : item.data.filenameEn }}</v-col>
         <v-col>
@@ -32,7 +32,6 @@
       </v-row>
     </div>
     <SwitchableSnackbars v-bind:snackbar="snackbar" />
-    <Overlay :overlay="overlay" />
   </div>
 </template>
 <script>
@@ -40,23 +39,24 @@ import { API } from "aws-amplify";
 import SwitchableSnackbars from '@/components/modules/SwitchableSnackbars.vue'
 import ConfirmModal from '@/components/modules/ConfirmModal.vue'
 import InformationAttachmentModal from '@/components/modules/InformationAttachmentModal.vue'
-import Overlay from '@/components/parts/Overlay'
+import { Storage } from 'aws-amplify';
 const apiName = 'PcsAPI';
+
 export default {
   components: {
     SwitchableSnackbars,
     InformationAttachmentModal,
     ConfirmModal,
-    Overlay,
   },
   data() {
     return {
       targets: [],
       snackbar: {
         state: "",
-        message: ""
+        message: "",
       },
-      overlay: false,
+      LANG_JAPANESE: "ja",
+      LANG_ENGLISH: "en"
     }
   },
   props: ['item'],
@@ -65,13 +65,13 @@ export default {
       return (d) => {
         if (this.isJp) {
           if (d.isAttach) {
-            return 'ja'
+            return this.LANG_JAPANESE
           }
         } else {
           if (d.isAttachEn) {
-            return 'en'
+            return this.LANG_ENGLISH
           } else if (d.isAttach) {
-            return 'ja'
+            return this.LANG_JAPANESE
           }
         }
       }
@@ -80,35 +80,46 @@ export default {
   created() {
   },
   methods: {
-    informationAttachDownload(e, information) {
-      e.stopPropagation()
-      this.targets.push(information.key.informationId)
-      this.snackbar.state = ""
-      this.snackbar.message = ""
+    storageGet(id, lang){
       API.get(apiName, '/information/attach', {
         queryStringParameters: {
-          informationId: information.key.informationId,
-          lang: this.isAttach(information.data),
+          informationId: id,
+          lang: lang,
         }
       })
-        .then(response => {
-          if (this.isAttach(information.data) === 'ja') {
-            if (response.content) {
-              this.base64DecodeAsBlobAll(response.content).then(blob => this.dispatchDownload(blob, response.filename ? response.filename : 'attachment.pdf'))
-            }
-          } else {
-            if (response.contentEn) {
-              this.base64DecodeAsBlobAll(response.contentEn).then(blob => this.dispatchDownload(blob, response.filenameEn ? response.filenameEn : 'attachmentEn.pdf'))
-            }
-          }
+        .then(ar => {
+          Storage.get(`${id}/${lang}`, { download: true })
+            .then(sr => {
+              if( sr.Body ) {
+                if (lang === this.LANG_JAPANESE) {
+                  this.dispatchDownload(sr.Body, ar.filename ? ar.filename : 'attachment')
+                } else {
+                  this.dispatchDownload(sr.Body, ar.filenameEn ? ar.filenameEn : 'attachmentEn')
+                }
+              }
+            })
+            .catch(() => {
+              this.snackbar.state = "error"
+              this.snackbar.message = this.$t('message.attachmentDownloadFailed')
+            })
+            .finally(() => {
+              this.targets = this.targets.filter(v => v !== id)
+            })
         })
         .catch(() => {
           this.snackbar.state = "error"
           this.snackbar.message = this.$t('message.attachmentDownloadFailed')
         })
         .finally(() => {
-          this.targets = this.targets.filter(v => v !== information.key.informationId)
+          this.targets = this.targets.filter(v => v !== id)
         })
+    },
+    informationAttachDownload(e, information) {
+      e.stopPropagation()
+      this.targets.push(information.key.informationId)
+      this.snackbar.state = ""
+      this.snackbar.message = ""
+      this.storageGet(information.key.informationId, this.isAttach(information.data))
       return false
     },
 
@@ -117,26 +128,12 @@ export default {
       this.targets.push(information.key.informationId)
       this.snackbar.state = ""
       this.snackbar.message = ""
-      API.get(apiName, '/information/attach', {
-        queryStringParameters: {
-          informationId: information.key.informationId
-        }
-      })
-        .then(response => {
-          if (response.content) {
-            this.base64DecodeAsBlobAll(response.content).then(blob => this.dispatchDownload(blob, response.filename ? response.filename : 'attachment.pdf'))
-          }
-          if (response.contentEn) {
-            this.base64DecodeAsBlobAll(response.contentEn).then(blob => this.dispatchDownload(blob, response.filenameEn ? response.filenameEn : 'attachmentEn.pdf'))
-          }
-        })
-        .catch(() => {
-          this.snackbar.state = "error"
-          this.snackbar.message = this.$t('message.attachmentDownloadFailed')
-        })
-        .finally(() => {
-          this.targets = this.targets.filter(v => v !== information.key.informationId)
-        })
+      if(information.data.filename) {
+        this.storageGet(information.key.informationId, this.LANG_JAPANESE)
+      }
+      if(information.data.filenameEn) {
+        this.storageGet(information.key.informationId, this.LANG_ENGLISH)
+      }
       return false
     },
 
@@ -146,11 +143,15 @@ export default {
         .then((b) => {
           if (b) {
             this.targets.push(information.key.informationId)
-            this.overlay = true
+            this.$emit("overlay", true)
             this.snackbar.state = ""
             this.snackbar.message = ""
             API.del(apiName, '/information/attach', { body: information.key })
-              .then(() => this.$emit("refresh"))
+              .then(() => {
+                Storage.remove(`${information.key.informationId}/ja`).catch((e)=>console.log(e))
+                Storage.remove(`${information.key.informationId}/en`).catch((e)=>console.log(e))
+                this.$emit("refresh")
+              })
               .catch((error) => {
                 if (error.response.status === 409) {
                   this.snackbar.message = this.$t('errorDescription.status_409')
@@ -162,7 +163,7 @@ export default {
               })
               .finally(() => {
                 this.targets = this.targets.filter(v => v !== information.key.informationId)
-                this.overlay = false
+                this.$emit("overlay", false)
               })
           }
         })
@@ -177,15 +178,23 @@ export default {
         .then(async (result) => {
           if (result) {
             this.targets.push(information.key.informationId)
-            this.overlay = true
+            this.$emit("overlay", true)
             try {
-              const version = await this.uploadAttachment(information.key.informationId, information.key.version, true, result.filename, result.content)
-              if (version && result.filenameEn) {
-                await this.uploadAttachment(information.key.informationId, version, false, result.filenameEn, result.contentEn)
+              const version = await this.uploadAttachment(information.key.informationId, information.key.version, true, result.filename, "dummy")
+              if ( version ) {
+                if (result.content) {
+                  await Storage.put(`${information.key.informationId}/ja` , result.content)
+                }
+                if (result.filenameEn) {
+                  await this.uploadAttachment(information.key.informationId, version, false, result.filenameEn, "dummy")
+                  if(result.contentEn) {
+                    await Storage.put(`${information.key.informationId}/en` , result.contentEn)
+                  }
+                }
               }
               this.$emit("refresh")
             } finally {
-              this.overlay = false
+              this.$emit("overlay", false)
               this.targets = this.targets.filter(v => v !== information.key.informationId)
             }
           }

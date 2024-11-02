@@ -1,0 +1,14 @@
+{
+  "resourceName": "s3a0d1675e",
+  "policyUUID": "a0d1675e",
+  "bucketName": "pcsappfile",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}

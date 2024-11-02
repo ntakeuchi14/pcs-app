@@ -89,13 +89,13 @@
         <template v-slot:item.data.title="{ item }">
           <span class="d-inline-block text-truncate" :style="isAdmin ? 'max-width: 250px;' : 'max-width: 950px;'">
             {{isJp ? item.data.title : item.data.titleEn ? item.data.titleEn : item.data.title}}
-            <InformationDownload v-if="isAdmin" :item="item" @refresh="getInformations"/>
+            <InformationDownload v-if="isAdmin" :item="item" @refresh="getInformations" @overlay="downloadOverlay"/>
           </span>
         </template>
         <template v-slot:item.data.titleEn="{ item }">
           <span class="d-inline-block text-truncate" :style="isAdmin ? 'max-width: 250px;' : 'max-width: 950px;'">
             {{isJp ? item.data.title : item.data.titleEn ? item.data.titleEn : item.data.title}}
-            <InformationDownload v-if="isAdmin" :item="item" @refresh="getInformations"/>
+            <InformationDownload v-if="isAdmin" :item="item" @refresh="getInformations" @overlay="downloadOverlay"/>
           </span>
         </template>
         <template v-slot:item.data.startDate="{ item }">
@@ -126,7 +126,7 @@
         </template>
         <template v-slot:item.attachmentButton="{ item }">
           <template v-if="!isAdmin && item.data.isAttach===1">
-            <InformationDownload :item="item"/>
+            <InformationDownload :item="item" @overlay="downloadOverlay"/>
           </template>
         </template>
       </v-data-table>
@@ -185,12 +185,16 @@
         </v-row>
       </div>
     </template>
+    <Overlay
+      :overlay="overlay"
+    />
     </div>
 </template>
 <script>
   import PageTitle from '@/components/parts/PageTitle'
   import PageCount from '@/components/parts/PageCount.vue'
   import InformationDownload from '@/components/modules/InformationDownload.vue'
+  import Overlay from '@/components/parts/Overlay'
   
   import { API } from "aws-amplify";
   import * as Const from '@/const.js'
@@ -202,6 +206,7 @@
       PageTitle,
       PageCount,
       InformationDownload,
+      Overlay,
     },
     data() {
       const params = this.$store.getters.getSearchParams.infos
@@ -220,6 +225,7 @@
         allCount: 0,
         page: params ? params.page : 1,
         currentCompanies: null,
+        overlay: false,
       }
     },
     computed: {
@@ -514,6 +520,9 @@
          this.csvDownload(infos, csvHeaders, fileName)
 
          this.csvLoading = false
+      },
+      downloadOverlay(b) {
+        this.overlay = b
       },
     },
     mounted() {

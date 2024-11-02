@@ -2,7 +2,7 @@
     <div id="wrapper" v-if="isAdmin">
                 <PageTitle id="pageTitle">{{pageTitle}}</PageTitle>
             
-                <v-form ref="form" v-model="valid" lazy-validation>
+                <v-form ref="form" v-model="valid">
                     <div id="inputforms">                        
                         <v-row justify="start">
                             <v-col cols="1">
