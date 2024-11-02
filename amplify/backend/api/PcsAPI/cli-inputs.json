@@ -1,0 +1,232 @@
+{
+  "version": 1,
+  "paths": {
+    "/sign/search": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/information/search": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/sign/csv": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/company/search": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/document": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/sign": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "update"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/company/csv": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/information/csv": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/user": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "delete"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/test": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/information": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "update"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/company": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "update"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/company/me": {
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      },
+      "lambdaFunction": "DelegateFunction"
+    },
+    "/question": {
+      "name": "/question",
+      "lambdaFunction": "DelegateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/question/excel": {
+      "name": "/question/excel",
+      "lambdaFunction": "DelegateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/answer": {
+      "name": "/answer",
+      "lambdaFunction": "DelegateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "update"
+        ]
+      }
+    },
+    "/answer/csv": {
+      "name": "/answer/csv",
+      "lambdaFunction": "DelegateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/answer/excel": {
+      "name": "/answer/excel",
+      "lambdaFunction": "DelegateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/answer/search": {
+      "name": "/answer/search",
+      "lambdaFunction": "DelegateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/question/revisions": {
+      "name": "/question/revisions",
+      "lambdaFunction": "DelegateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/company/all": {
+      "name": "/company/all",
+      "lambdaFunction": "DelegateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/information/attach": {
+      "name": "/information/attach",
+      "lambdaFunction": "DelegateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/code": {
+      "name": "/code",
+      "lambdaFunction": "DelegateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    }
+  }
+}

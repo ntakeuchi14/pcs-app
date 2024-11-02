@@ -1,0 +1,484 @@
+{
+  "title": "Business Partner Communication System",
+  "pageTitle": "ビジネスパートナーコミュニケーションシステム NRI野村総合研究所",
+  "logout": "ログアウト",
+  "login": {
+    "title": "Business Partner Communication System にサインイン"
+  },
+  "pagination": {
+    "formatBetween": "{0}件～{1}件",
+    "format": "全{0}件中{1}を表示"
+  },
+  "menu": {
+    "dashboard": "ダッシュボード",
+    "login": "ログイン",
+    "signs": "同意書一覧",
+    "signComplete": "同意書記名完了",
+    "sign": "記名照会",
+    "adminSign": "記名照会",
+    "informations": "連絡事項一覧",
+    "newInformation": "新規連絡事項登録",
+    "information": "連絡事項",
+    "allAnswers": "アンケート一覧",
+    "answer": "アンケート",
+    "answerAdmin": "アンケート",
+    "answerComplete": "アンケート記入完了",
+    "adminCompanies": "会社一覧",
+    "adminCreateCompany": "新規会社登録",
+    "adminEditCompany": "会社編集",
+    "adminEditCompanyUser": "会社ユーザ編集",
+    "adminUsers": "ユーザー一覧",
+    "adminCreateUser": "新規ユーザー登録",
+    "adminEditUser": "ユーザー編集",
+    "inquiry": "お問い合わせ",
+    "environment": "推奨環境"
+  },
+  "common": {
+    "create": "登録",
+    "edit": "編集",
+    "update": "更新",
+    "delete": "削除",
+    "status": "状態",
+    "company": "会社",
+    "inputRange": "入力期間",
+    "implNo": "実施番号",
+    "revisionNo": "リビジョン番号",
+    "historyNo": "履歴番号",
+    "signedAt": "記名日",
+    "required": "必須",
+    "tempSave": "一時保存",
+    "save": "完了",
+    "returnIndex": "一覧へ戻る",
+    "cancel": "キャンセル",
+    "sign": "同意書",
+    "datePlaceholder": "年/月/日",
+    "allCompanies": "全社",
+    "error": "エラー",
+    "close": "閉じる",
+    "enabled": "有効",
+    "disabled": "無効",
+    "enable": "有効化",
+    "disable": "無効化",
+    "return": "戻る",
+    "answered": "回答済"
+  },
+  "message": {
+    "logout": {
+      "confirm": "ログアウトしますか？"
+    },
+    "enterFreewords": "フリーワードを入力してください。",
+    "nodata": "対象のデータがありません",
+    "loading": "ロード中です しばらくお待ちください",
+    "attachmentDownloadFailed": "添付ファイルがダウンロード出来ませんでした",
+    "confirmDeleteAttachment": "添付ファイルを削除します",
+    "nodataInformation": "連絡事項はありません",
+    "nodataSign": "未入力の同意書はありません",
+    "nodataAnswer": "未回答のアンケートはありません",
+    "selectImplNo": "実施番号を選択して下さい",
+    "selectRevisionNo": "リビジョンを選択して下さい",
+    "selectCompany": "会社を検索/選択してください",
+    "inputCompanyCode": "会社コードを記載して下さい(区切り文字として使用できるのはTAB,カンマ,空白,改行)",
+    "unanswered": "未回答の項目があります",
+    "noanswer": "アンケートの回答がありません",
+    "guideAnswered": "回答完了ボタンを押すことでアンケート入力を完了することができます",
+    "forbidden": "閲覧権限がありません",
+    "inputCompanyName": "会社名を入力してください",
+    "inputPhoneNumber": "電話番号を入力してください",
+    "inputPostCode": "郵便番号を入力してください",
+    "inputAddress": "住所を入力してください",
+    "inputQuestion": "アンケートを選択してください",
+    "selectSign": "同意書を選択してください"
+  },
+  "messageSnackBar": {
+    "createSucceed": "登録が完了しました",
+    "createFailed": "登録に失敗しました",
+    "updateSucceed": "更新が完了しました",
+    "deleteSucceed": "削除が完了しました",
+    "signRejectSucceed": "記名を差し戻しました",
+    "signRenewSucceed": "再記名を依頼しました",
+    "questionRejectSucceed": "アンケートの差し戻しを実施しました",
+    "questionRenewSucceed": "アンケートの再回答を実施しました",
+    "invalidDateRange": "無効な公開期間です",
+    "invalidMailFormt": "無効なフォーマットのアドレスです",
+    "loadedExcel": "EXCELファイルの読み込みが完了しました",
+    "startExcelDownload": "入力用Excelファイルをダウンロードします",
+    "startAnswerExcelDownload": "回答ファイルをダウンロードします",
+    "tempSaveDone": "一時保存しました。"
+  },
+  "messageModal": {
+    "sign": {
+      "temporarySavedConfirm": "一時保存しますか?",
+      "savedConfirm": "入力を完了しますか？",
+      "rejectConfirm": "差し戻しを実行しますか？",
+      "renewConfirm": "再記名依頼を実行しますか？"
+    },
+    "createdConfirm": "登録しますか？",
+    "updatedConfirm": "更新しますか？",
+    "question": {
+      "temporarySavedConfirm": "一時保存しますか?",
+      "savedConfirm": "回答を完了しますか？",
+      "rejectConfirm": "差し戻しを実行しますか？",
+      "renewConfirm": "アンケートの再回答を実施します。\n実施後は、現在の回答とは別に回答が保存されます。 \n よろしいですか？ \n 再回答理由があれば下記に記載下さい",
+      "excelVersionDifference": "アップされたexcelファイルが最新のものでない可能性があります。excelファイルをご確認のうえ、再度アップロードしてください",
+      "excelFormatDifference": "想定されていないファイルがアップロードされました。ファイルをご確認のうえ、再度アップロードしてください",
+      "downloadDisclaimer": "excelファイルをダウンロードします</br>     下記事項に注意の上ファイルをご利用下さい</br></br>     <ul>     <li>最新版のエクセルを利用すること。</li>     <li>ダウンロードしたファイルが外部アプリケーションの起動をしようとした場合それを許可しないこと。</li>     <li>エクセルの設定を以下の方法で変更しトラストセンターで動的データ交換の起動を無効化(※)すること。     <p class='message-desc'>※エクセルを開き「オプション」→「トラストセンター」→「トラストセンターの設定」</br>→「動的データ交換の起動を有効にする（推奨しません）のチェックを外す」→「ok」</p></li></ul>",
+      "uploaded": "EXCELファイルの読み込みが完了しました</br>下記いずれかのボタンを押下してください</br></br><ul><li>一時保存:  回答内容を保存します(再度アップロードして修正することが出来ます)</li><li>回答完了:  回答を完了します(回答の修正は出来ません)</li></ul>"
+    },
+    "user": {
+      "toEnableConfirm": "ユーザーを有効化しますか？",
+      "toDisableConfirm": "ユーザーを無効化しますか？",
+      "checkUserError": "ログイン中のユーザーは変更できません"
+    }
+  },
+  "signin": {
+    "passwordSetting": "パスワード設定"
+  },
+  "modal": {
+    "yes": "はい",
+    "no": "いいえ"
+  },
+  "dashboard": {
+    "emptySign": "未入力同意書",
+    "emptyAnswer": "未回答アンケート",
+    "informationsHeaders": {
+      "releaseDate": "公開日",
+      "title": "タイトル",
+      "pdfDownloadBtn": "添付ファイル"
+    },
+    "signsHeaders": {
+      "releaseDate": "同意書公開日",
+      "title": "タイトル",
+      "status": "状態"
+    },
+    "answerHeaders": {
+      "period": "回答期間",
+      "title": "タイトル",
+      "status": "状態"
+    }
+  },
+  "sign": {
+    "status": {
+      "status1": "未入力",
+      "status2": "一時保存",
+      "status3": "完了"
+    },
+    "headers": {
+      "lastUpdateDate": "最終更新日",
+      "requestDate": "同意書公開日",
+      "implNo": "実施番号",
+      "title": "タイトル",
+      "status": "状態",
+      "startDate": "入力期間",
+      "companyCode": "会社コード",
+      "companyName": "会社名"
+    },
+    "csvHeaders": {
+      "implNo": "実施番号",
+      "title": "同意書タイトル",
+      "revisionNo": "リビジョン",
+      "companyCode": "会社コード",
+      "companyName": "会社名",
+      "historyNo": "履歴番号",
+      "requestDate": "同意書公開日",
+      "startDate": "実施期間開始日",
+      "endDate": "実施期間終了日",
+      "status": "入力状態",
+      "signedAt": "記名時刻",
+      "lastUpdateUser": "最終更新者名",
+      "lastUpdateUserAddress": "最終更新者メールアドレス",
+      "lastUpdateDate": "最終更新時刻",
+      "signItemName": "記名項目名",
+      "signContent": "記名内容"
+    },
+    "conditions": {
+      "freeword": "フリーワード",
+      "status": "状態",
+      "companyName": "会社名"
+    },
+    "actions": {
+      "search": "絞り込み",
+      "reset": "リセット",
+      "csv": "CSV出力",
+      "reject": "一時保存状態に戻す",
+      "renew": "再記名を依頼する"
+    }
+  },
+  "answer": {
+    "status": {
+      "status1": "未入力",
+      "status2": "一時保存",
+      "status3": "完了"
+    },
+    "headers": {
+      "lastUpdateDate": "最終更新日",
+      "requestDate": "回答依頼日",
+      "implNo": "実施番号",
+      "revisionNo": "リビジョン番号",
+      "historyNo": "履歴番号",
+      "status": "状態",
+      "startDate": "入力期間",
+      "companyCode": "会社コード",
+      "companyName": "会社名"
+    },
+    "csvHeaders": {
+      "implNo": "実施番号",
+      "title": "アンケートタイトル",
+      "revisionNo": "リビジョン",
+      "companyCode": "会社コード",
+      "companyName": "会社名",
+      "historyNo": "履歴番号",
+      "startDate": "実施期間開始日",
+      "endDate": "実施期間終了日",
+      "status": "回答状態",
+      "answeredAt": "回答時刻",
+      "lastUpdateUser": "最終更新者名",
+      "lastUpdateUserAddress": "最終更新者メールアドレス",
+      "lastUpdateDate": "最終更新時刻"
+    },
+    "conditions": {
+      "freeword": "フリーワード",
+      "status": "状態",
+      "companyName": "会社名",
+      "implNo": "実施番号",
+      "revision": "リビジョン"
+    },
+    "actions": {
+      "search": "絞り込み",
+      "reset": "リセット",
+      "csv": "CSV出力",
+      "inputDownload": "入力用Excelファイルダウンロード",
+      "inputedDownload": "入力済みEXCELファイルダウンロード",
+      "preDownload": "前回回答済みEXCELファイルダウンロード",
+      "download": "EXCELファイルダウンロード",
+      "selectFile": "ファイル選択",
+      "reject": "一時保存状態に戻す",
+      "renew": "再回答を実施する",
+      "save": "回答完了"
+    },
+    "guide": {
+      "line1": "1. 入力用Excelファイルダウンロード",
+      "line2": "2.ダウンロードしたアンケートを記入してください",
+      "line3": "3.入力済みEXCELファイルアップロード",
+      "line1Comment": "入力用Excelファイルダウンロードをクリックしてアンケートをダウンロードしてください。",
+      "line2Comment": "※ 前回回答済みEXCELファイルを参照する場合は、前回回答済みEXCELファイルダウンロードをクリック",
+      "line3Comment": "2で記載した入力済みEXCELファイルをファイル選択ボタンをクリックしてアップロードまたはドラッグアンドドロップでアップロードしてください。",
+      "ddComent": "ドラッグ＆ドロップでEXCELファイルをアップロードできます"
+    },
+    "annotation": "リビジョンを絞込中です。<br>最新のリビジョンが表示されているわけではありません。<br>選択中はリビジョンの履歴番号ごとに表示されます。",
+    "answeredDate": "回答日",
+    "inputExcelSuffix": "_入力用"
+  },
+  "information": {
+    "status": {
+      "status1": "未公開",
+      "status2": "公開中",
+      "status3": "公開終了"
+    },
+    "headers": {
+      "status": "状態",
+      "releaseDate": "公開日",
+      "startDate": "公開期間",
+      "informationId": "連絡番号",
+      "title": "タイトル",
+      "titleJp": "タイトル(日本語)",
+      "titleEn": "タイトル(英語)",
+      "companyId": "会社コード",
+      "companyName": "会社名",
+      "attachment": "添付ファイル名"
+    },
+    "csvHeaders": {
+      "contentsJp": "詳細内容(日本語)",
+      "contentsEn": "詳細内容(英語)",
+      "informationId": "連絡番号",
+      "companyCode": "連絡先会社コード",
+      "contactInformation": "連絡先",
+      "startDate": "公開期間開始日",
+      "endDate": "公開期間終了日",
+      "releaseDate": "公開日",
+      "title": "タイトル",
+      "contents": "詳細内容",
+      "status": "状態",
+      "filename": "添付ファイル",
+      "allCompaniesCheck": "全社指定チェック"
+    },
+    "conditions": {
+      "freeword": "フリーワード",
+      "status": "状態"
+    },
+    "actions": {
+      "search": "絞り込み",
+      "reset": "リセット",
+      "csv": "CSV出力",
+      "add": "新規連絡事項登録"
+    },
+    "companies": {
+      "title": "連絡先会社一覧",
+      "id": "会社コード",
+      "name": "会社名"
+    },
+    "attachment": {
+      "title": "添付ファイル編集",
+      "selectFile": "ファイル選択(日本語)",
+      "selectFileEn": "ファイル選択(英語)",
+      "invalidFile": "ファイルが不正です",
+      "invalidFilename": "ファイル名が不正です",
+      "confirmAttachment": "添付ファイルを更新します",
+      "notPdffile": "PDFファイルではありません"
+    }
+  },
+  "company": {
+    "title": {
+      "create": "新規会社登録",
+      "edit": "会社情報編集"
+    },
+    "conditions": {
+      "freeword": "フリーワード"
+    },
+    "headers": {
+      "companyCode": "会社コード",
+      "companyName": "会社名"
+    },
+    "csvHeaders": {
+      "companyCode": "会社コード",
+      "companyName": "会社名",
+      "phoneNumber": "電話番号",
+      "companyInnerCode": "内部コード",
+      "postCode": "郵便番号",
+      "address": "住所",
+      "document": "同意書",
+      "question": "アンケート",
+      "note": "備考",
+      "lastUpdateUser": "最終更新者名",
+      "lastUpdateUserAddress": "最終更新者メールアドレス",
+      "lastUpdateDate": "最終更新時刻"
+    },
+    "actions": {
+      "search": "絞り込み",
+      "reset": "リセット",
+      "csv": "CSV出力",
+      "add": "新規会社登録",
+      "edit": "編集",
+      "userInventory": "ユーザー棚卸"
+    },
+    "validMessage": {
+      "maxLength": "{0}桁で入力してください",
+      "format": "半角数字で入力してください"
+    },
+    "inventory": {
+      "validUser": "有効ユーザ",
+      "invalidUser": "無効ユーザ",
+      "addUser": "新規ユーザ登録",
+      "bulkDelete": "無効なユーザを一括削除",
+      "update": "ユーザ状態の更新",
+      "confirmUpdate": "ユーザ情報を更新します"
+    }
+  },
+  "user": {
+    "titleNew": "新規ユーザー作成",
+    "titleEdit": "ユーザー編集",
+    "conditions": {
+      "companyName": "会社名"
+    },
+    "headers": {
+      "username": "氏名",
+      "email": "メールアドレス",
+      "userStatus": "ユーザー状態",
+      "updatedUser": "最終更新者",
+      "updatedAt": "最終更新日時",
+      "company": "会社コード/会社名",
+      "user": "氏名/メールアドレス/種別",
+      "status": "有効/無効",
+      "type": "種別",
+      "note": "備考"
+    },
+    "csvHeaders": {
+      "companyCode": "会社コード",
+      "companyName": "会社名",
+      "email": "メールアドレス",
+      "username": "氏名",
+      "userStatus": "ユーザー状況",
+      "status": "有効/無効",
+      "type": "種別",
+      "note": "備考",
+      "updatedUser": "最終更新者",
+      "updatedAt": "最終更新日時"
+    },
+    "actions": {
+      "search": "絞り込み",
+      "reset": "リセット",
+      "csv": "CSV出力",
+      "add": "新規ユーザー登録",
+      "edit": "編集",
+      "delete": "削除"
+    },
+    "status": {
+      "status1": "ログイン済み",
+      "status2": "ログイン待ち",
+      "status3": "パスワードリセット待ち",
+      "status4": "不明",
+      "status5": "作成済",
+      "status6": "無効"
+    },
+    "messages": {
+      "listMax": "表示できる最大件数は50件です。",
+      "listMaxAdmin": "表示できる最大件数は50件です。絞り込みやCSV出力を使用してください。",
+      "confirmDelete": "本当に削除しますか？",
+      "alertDelete": "ログイン中のユーザーは削除できません",
+      "inputUsername": "名前を入力してください",
+      "inputEmail": "メールアドレスを入力してください"
+    },
+    "accessHistory": {
+      "title": "アクセス履歴（直近10件）",
+      "creationDate": "日付",
+      "eventType": "イベント",
+      "eventResponse": "結果",
+      "riskDecision": "リスクの判断",
+      "ipAddress": "IP",
+      "deviceName": "デバイス",
+      "city": "City",
+      "country": "Country"
+    },
+    "placeholder": {
+      "name": "氏名で絞り込み(前方一致)",
+      "mail": "メールアドレスで絞り込み(前方一致)"
+    },
+    "annotation": "本システムへのログイン可能な貴社ユーザを表示しています<br>定期的に不要となったユーザの削除をお願いします<br><div class=\"note\">※ユーザの追加・ユーザ名変更に関しては下記担当者までメールでご連絡下さい。<div class=\"mail\">株式会社野村総合研究所 調達管理部 サステナブル調達担当 e-mail: <a href=\"mailto:sustaina-choutatsu@nri.co.jp\">sustaina-choutatsu@nri.co.jp</a></div></div>"
+  },
+  "footer": {
+    "home": "HOME",
+    "guide": "利用ガイド",
+    "guideLink": "guide_ja.pdf",
+    "inquiry": "お問い合わせ",
+    "environment": "推奨環境",
+    "privacy": "個人情報の取り扱いについて",
+    "privacyLink": "https://www.nri.com/jp/site/privacy/"
+  },
+  "errorDescription": {
+    "addUser_409": "すでに存在するユーザーです",
+    "addCompany_409": "すでに存在する会社コードです",
+    "UPDATE_COMPANY_409": "すでに存在する会社コードに変更は出来ません",
+    "status_400": "入力値が正しくありません。再度やり直してください。",
+    "status_403": "アクセス権がありません。",
+    "status_404": "ページが見つかりません。",
+    "status_409": "すでに他のユーザーによって更新されています。リロードしてください。",
+    "status_500": "システムエラーが発生しました。時間をおいてやり直してください。",
+    "statusUnknown": "不明なエラーが発生しました。",
+    "networkError": "ネットワークに接続できません。",
+    "userNotExists": "ユーザーが見つかりません。"
+  },
+  "environment": {
+    "recommendBrowser": "推奨ブラウザ",
+    "message": "Business Partner Communication System は以下の動作環境を推奨しております。",
+    "browserFirefox": "Firefox 最新版",
+    "browserChrome": "Chrome 最新版",
+    "browserEdge": "Microsoft Edge",
+    "browserSafari": "Safari 最新版"
+  },
+  "inquiry": {
+    "title": "Business Partner Communication System お問い合わせ窓口",
+    "contents": "<h3>ご相談や内容に関するご質問等は、下記担当者までメールでご連絡下さい。</h3><p>株式会社野村総合研究所 調達管理部<br>サステナブル調達担当 e-mail: <a href=\"mailto:sustaina-choutatsu@nri.co.jp\">sustaina-choutatsu@nri.co.jp</a></p>"
+  },
+  "header": {
+    "link": "https://www.nri.com/jp"
+  }
+}

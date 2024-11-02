@@ -1,0 +1,13 @@
+{
+  "lambdaLayers": [],
+  "permissions": {
+    "auth": {
+      "pcsappe15969e7": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ]
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+    "configurations": [
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "environment:index.handler (nodejs14.x)",
+            "invokeTarget": {
+                "target": "code",
+                "projectRoot": "pcstestapp8bd0b2c0-dev",
+                "lambdaHandler": "index.handler"
+            },
+            "lambda": {
+                "runtime": "nodejs12.x",
+                "payload": {
+                    "json": {
+                        "requestContext": {
+                            "identity": {
+                                "cognitoAuthenticationProvider": "aaa/bbb/ap-northeast-1_UuDgmqPco:aaa:ab75e5ad-1078-48dd-818b-524fe54e063c"
+                            }
+                        },
+                        "path": "/user",
+                        "httpMethod": "DELETE",
+                        "body": {
+                            "email": "a@abcd" 
+                        }
+                    },
+                    "json2": {
+                        "requestContext": {
+                            "identity": {
+                                "cognitoAuthenticationProvider": "aaa/bbb/ap-northeast-1_UuDgmqPco:aaa:ab75e5ad-1078-48dd-818b-524fe54e063c"
+                            }
+                        },
+                        "path": "/user",
+                        "httpMethod": "POST",
+                        "body": {
+                            "username": "email",
+                            "email": "a@abcd",
+                            "role": "admin"
+                        }
+                    },
+                    "json1": {
+                        "requestContext": {
+                            "identity": {
+                                "cognitoAuthenticationProvider": "aaa/bbb/ap-northeast-1_UuDgmqPco:aaa:ab75e5ad-1078-48dd-818b-524fe54e063c"
+                            }
+                        },
+                        "path": "/user",
+                        "httpMethod": "GET",
+                        "queryStringParameters": {
+                            "searchType": "email",
+                            "keyword": "a"
+                        }
+                    }
+                },
+                "environmentVariables": {}
+            }
+        }
+    ]
+}

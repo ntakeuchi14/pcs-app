@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400&display=swap');
+
+:root {
+    --button-background-color: #1976D2 !important;
+    --button-click: #1565C0 !important;
+    --link-color: #1A237E !important;
+    --amplify-primary-color: #1976D2;
+    --amplify-primary-tint: #1565C0;
+    --amplify-primary-shade: #1A237E;
+    --amplify-secondary-tint: #f34545;
+    --amplify-font-family: 'Noto Sans JP', sans-serif;
+}
+
+#app {
+  font-family: 'Noto Sans JP', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center ;
+  color: rgba(0, 0, 0, 1);
+  font-size:1rem;
+}
+
+.v-data-table td {
+  color: rgba(0, 0, 0, 1);
+  font-size:1rem !important;
+}
+
+.v-data-table th {
+  color: rgba(0, 0, 0, 1) !important;
+  font-size:1rem !important;
+}
+
+.v-btn {
+   text-transform: none;
+}

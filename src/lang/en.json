@@ -1,0 +1,484 @@
+{
+  "title": "Business Partner Communication System",
+  "pageTitle": "Business Partner Communication System NRI Nomura Research Institute, Ltd.",
+  "logout": "logout",
+  "login": {
+    "title": "Sign in to Business Partner Communication System"
+  },
+  "pagination": {
+    "formatBetween": "{0} to {1} cases",
+    "format": "Showing {1} of {0} total"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "login": "Login",
+    "signs": "Consent Form List",
+    "signComplete": "Consent Form Completed",
+    "sign": "Name Inquiry",
+    "adminSign": "Name Inquiry",
+    "informations": "Message List",
+    "newInformation": "New Contact Registration",
+    "information": "Message",
+    "allAnswers": "Questionnaire List",
+    "answer": "Questionnaire",
+    "answerAdmin": "Questionnaire",
+    "answerComplete": "Completed Questionnaire",
+    "adminCompanies": "Company List",
+    "adminCreateCompany": "New Company Registration",
+    "adminEditCompany": "Edit Company",
+    "adminEditCompanyUser": "Edit Company User",
+    "adminUsers": "User List",
+    "adminCreateUser": "New User Registration",
+    "adminEditUser": "Edit User",
+    "inquiry": "Contact Us",
+    "environment": "Recommended System Environment"
+  },
+  "common": {
+    "create": "Register",
+    "edit": "Edit",
+    "update": "Update",
+    "delete": "Delete",
+    "status": "Status",
+    "company": "Company",
+    "inputRange": "Entry Period",
+    "implNo": "Implementation No.",
+    "revisionNo": "Revision Number",
+    "historyNo": "History No.",
+    "signedAt": "Submission Date",
+    "required": "Required",
+    "tempSave": "Temporary saving",
+    "save": "submit",
+    "returnIndex": "Back to list",
+    "cancel": "Cancel",
+    "sign": "Agreement",
+    "datePlaceholder": "Year/Month/Day",
+    "allCompanies": "Whole Company",
+    "error": "Error",
+    "close": "Close",
+    "enabled": "Valid",
+    "disabled": "Disable",
+    "enable": "Enable",
+    "disable": "Disable",
+    "return": "Back to",
+    "answered": "Answered"
+  },
+  "message": {
+    "logout": {
+      "confirm": "Would you like to log out?"
+    },
+    "enterFreewords": "Please enter a free word.",
+    "nodata": "No data available.",
+    "loading": "Loading. Please wait.",
+    "attachmentDownloadFailed": "File could not be downloaded.",
+    "confirmDeleteAttachment": "Delete attachment",
+    "nodataInformation": "There is no contact information",
+    "nodataSign": "There are no outstanding consent forms",
+    "nodataAnswer": "There are no unanswered questionnaires",
+    "selectImplNo": "Please select implementation number",
+    "selectRevisionNo": "Please select revision",
+    "selectCompany": "Please search/select a company",
+    "inputCompanyCode": "Please include your company code (TAB, comma, space, line feed are allowed as delimiters)",
+    "unanswered": "There are items that have not been answered",
+    "noanswer": "You have not completed the survey.",
+    "guideAnswered": "You can complete the survey by clicking the \"Complete\" button.",
+    "forbidden": "You do not have permission to view this page.",
+    "inputCompanyName": "Please enter your company name",
+    "inputPhoneNumber": "Please enter your phone number",
+    "inputPostCode": "Please enter your postal code",
+    "inputAddress": "Please enter your address",
+    "inputQuestion": "Please select a survey",
+    "selectSign": "Please select a consent form"
+  },
+  "messageSnackBar": {
+    "createSucceed": "Registration Completed",
+    "createFailed": "Registration failed",
+    "updateSucceed": "Update Completed",
+    "deleteSucceed": "Deletion completed",
+    "signRejectSucceed": "Name has been returned",
+    "signRenewSucceed": "Re-registration requested",
+    "questionRejectSucceed": "Questionnaire has been returned",
+    "questionRenewSucceed": "Questionnaire has been re-submitted",
+    "invalidDateRange": "Invalid open period",
+    "invalidMailFormt": "Invalid format address.",
+    "loadedExcel": "File has been loaded",
+    "startExcelDownload": "File has been downloaded",
+    "startAnswerExcelDownload": "File has been downloaded",
+    "tempSaveDone": "Temporarily saved."
+  },
+  "messageModal": {
+    "sign": {
+      "temporarySavedConfirm": "Do you want to save temporarily?",
+      "savedConfirm": "Do you want to complete submit?",
+      "rejectConfirm": "Execute return request?",
+      "renewConfirm": "Execute rename request?"
+    },
+    "createdConfirm": "Do you want to register?",
+    "updatedConfirm": "Do you want to update?",
+    "question": {
+      "temporarySavedConfirm": "Do you want to save temporarily?",
+      "savedConfirm": "Would you like to complete the form?",
+      "rejectConfirm": "Perform a return?",
+      "renewConfirm": "Re-enter the survey.\nAfter implementation, the response will be saved separately from the current response. \n Are you sure? \n If you have a reason for re-response, please indicate it below.",
+      "excelVersionDifference": "The uploaded excel file may not be the latest one, please check the excel file and upload it again.",
+      "excelFormatDifference": "An unexpected file was uploaded. Please check the file and upload again.",
+      "downloadDisclaimer": "Download excel file</br>     Please note the following before using the file</br></br>     <ul>     <li>Use the latest version of Excel.</li>     <li>If the downloaded file attempts to launch an external application, do not allow it to do so.</li>     <li>Disable (*) the startup of dynamic data exchange at the Trust Center by changing the Excel settings in the following way.      <p class='message-desc'>*Open Excel, click \"Options\" -> \"Trust Center\" -> \"Trust Center Settings\" </br>-> \"Uncheck Enable (not recommended) Dynamic Data Interchange Startup\" -> \"ok \".</p></li></ul>",
+      "uploaded": "EXCEL file has been loaded</br>Please click one of the following buttons</br></br><ul><li>Temporary saving: Save your response (you can upload and modify it again)</li><li>Answer Completed: Your response is complete.(You cannot modify your answer)</li></ul>"
+    },
+    "user": {
+      "toEnableConfirm": "Do you want to activate a user?",
+      "toDisableConfirm": "Do you want to deactivate a user?",
+      "checkUserError": "Logged-in users cannot be changed"
+    }
+  },
+  "signin": {
+    "passwordSetting": "Password setting"
+  },
+  "modal": {
+    "yes": "Yes",
+    "no": "No"
+  },
+  "dashboard": {
+    "emptySign": "Unentered Consent Form",
+    "emptyAnswer": "Unanswered Questionnaire",
+    "informationsHeaders": {
+      "releaseDate": "Release Date",
+      "title": "Title",
+      "pdfDownloadBtn": "File"
+    },
+    "signsHeaders": {
+      "releaseDate": "Release Date",
+      "title": "Title",
+      "status": "Status"
+    },
+    "answerHeaders": {
+      "period": "Response period",
+      "title": "Title",
+      "status": "Status"
+    }
+  },
+  "sign": {
+    "status": {
+      "status1": "Not filled in",
+      "status2": "Temporarily saved",
+      "status3": "Completed"
+    },
+    "headers": {
+      "lastUpdateDate": "Last Update",
+      "requestDate": "Release Date",
+      "implNo": "Implementation Number",
+      "title": "Title",
+      "status": "Status",
+      "startDate": "Entry Period",
+      "companyCode": "Company Code",
+      "companyName": "Company Name"
+    },
+    "csvHeaders": {
+      "implNo": "Implementation No.",
+      "title": "Consent Form Title",
+      "revisionNo": "Revision",
+      "companyCode": "Company Code",
+      "companyName": "Company Name",
+      "historyNo": "History No.",
+      "requestDate": "Consent Release Date",
+      "startDate": "Implementation Period Start Date",
+      "endDate": "Implementation Period End Date",
+      "status": "Entry Status",
+      "signedAt": "Time of entry",
+      "lastUpdateUser": "Last updated by name",
+      "lastUpdateUserAddress": "Last updated by e-mail address",
+      "lastUpdateDate": "Last update time",
+      "signItemName": "Name of item",
+      "signContent": "Name Contents"
+    },
+    "conditions": {
+      "freeword": "Free word",
+      "status": "Status",
+      "companyName": "Company Name"
+    },
+    "actions": {
+      "search": "Refine",
+      "reset": "Reset",
+      "csv": "CSV Output",
+      "reject": "Restore temporary save status",
+      "renew": "Request renaming"
+    }
+  },
+  "answer": {
+    "status": {
+      "status1": "Not entered",
+      "status2": "Temporary save",
+      "status3": "Completed"
+    },
+    "headers": {
+      "lastUpdateDate": "Last Update",
+      "requestDate": "Request Date",
+      "implNo": "Implementation Number",
+      "revisionNo": "Revision Number",
+      "historyNo": "History Number",
+      "status": "Status",
+      "startDate": "Entry Period",
+      "companyCode": "Company Code",
+      "companyName": "Company Name"
+    },
+    "csvHeaders": {
+      "implNo": "Implementation No.",
+      "title": "Survey Title",
+      "revisionNo": "Revision",
+      "companyCode": "Company Code",
+      "companyName": "Company Name",
+      "historyNo": "History Number",
+      "startDate": "Implementation Period Start Date",
+      "endDate": "Implementation Period End Date",
+      "status": "Response Status",
+      "answeredAt": "Response Time",
+      "lastUpdateUser": "Last updated by name",
+      "lastUpdateUserAddress": "Last updated by e-mail address",
+      "lastUpdateDate": "Last Update Time"
+    },
+    "conditions": {
+      "freeword": "Free word",
+      "status": "Status",
+      "companyName": "Company Name",
+      "implNo": "Implementation Number",
+      "revision": "Revision"
+    },
+    "actions": {
+      "search": "Refine",
+      "reset": "Reset",
+      "csv": "CSV Output",
+      "inputDownload": "Download Excel file",
+      "inputedDownload": "Download completed Excel file",
+      "preDownload": "Download Previously Completed Excel File",
+      "download": "Download Excel file",
+      "selectFile": "Select File",
+      "reject": "Restore Temporary Save Status",
+      "renew": "Re-enter response",
+      "save": "Answer Completed"
+    },
+    "guide": {
+      "line1": "1. download the Excel file",
+      "line2": "2. fill out the downloaded questionnaire",
+      "line3": "3. upload the completed Excel file",
+      "line1Comment": "Click on \"Download Excel file\" to download the questionnaire.",
+      "line2Comment": "If you wish to refer to the previously answered Excel file, click on Download Previously Completed Excel File",
+      "line3Comment": "Click the Select File button to upload or drag-and-drop the completed Excel file below.",
+      "ddComent": "You can upload an Excel file by drag & drop"
+    },
+    "annotation": "Revisions are being narrowed down.<br>The latest revision is not displayed.<br>The selected revisions will be displayed in order of revision history number.",
+    "answeredDate": "Submission Date",
+    "inputExcelSuffix": "_ForInput"
+  },
+  "information": {
+    "status": {
+      "status1": "Not open to the public",
+      "status2": "Open to the public",
+      "status3": "Closed"
+    },
+    "headers": {
+      "status": "Status",
+      "releaseDate": "Date",
+      "startDate": "Period",
+      "informationId": "Contact Number",
+      "title": "Title",
+      "titleJp": "Title(Japanese)",
+      "titleEn": "Title(English)",
+      "companyId": "Company Code",
+      "companyName": "Company Name",
+      "attachment": "File"
+    },
+    "csvHeaders": {
+      "contentsJp": "Details (Japanese)",
+      "contentsEn": "Details (English)",
+      "informationId": "Contact Number",
+      "companyCode": "Contact Company Code",
+      "contactInformation": "Contact Person",
+      "startDate": "Open period start date",
+      "endDate": "Release period end date",
+      "releaseDate": "Date",
+      "title": "Title",
+      "contents": "Details",
+      "status": "Status",
+      "filename": "File",
+      "allCompaniesCheck": "Company-wide designation check"
+    },
+    "conditions": {
+      "freeword": "Free word",
+      "status": "Status"
+    },
+    "actions": {
+      "search": "Narrow down",
+      "reset": "Reset",
+      "csv": "CSV Output",
+      "add": "New Contact Registration"
+    },
+    "companies": {
+      "title": "Contact Company List",
+      "id": "Company Code",
+      "name": "Company Name"
+    },
+    "attachment": {
+      "title": "Edit Attachments",
+      "selectFile": "Select file (Japanese)",
+      "selectFileEn": "File selection (English)",
+      "invalidFile": "File name is invalid.",
+      "invalidFilename": "File name is invalid.",
+      "confirmAttachment": "Update attachment",
+      "notPdffile": "Not a PDF file"
+    }
+  },
+  "company": {
+    "title": {
+      "create": "New Company Registration",
+      "edit": "Edit Company Information"
+    },
+    "conditions": {
+      "freeword": "Free word"
+    },
+    "headers": {
+      "companyCode": "Company Code",
+      "companyName": "Company Name"
+    },
+    "csvHeaders": {
+      "companyCode": "Company Code",
+      "companyName": "Company Name",
+      "phoneNumber": "Phone Number",
+      "companyInnerCode": "id",
+      "postCode": "Postal Code",
+      "address": "Address",
+      "document": "Agreement",
+      "question": "Questionnaire",
+      "note": "Remarks",
+      "lastUpdateUser": "Last updated name",
+      "lastUpdateUserAddress": "Last updated by e-mail address",
+      "lastUpdateDate": "Last Update Time"
+    },
+    "actions": {
+      "search": "Refine",
+      "reset": "Reset",
+      "csv": "CSV Output",
+      "add": "New Company Registration",
+      "edit": "Edit",
+      "userInventory": "User Inventory"
+    },
+    "validMessage": {
+      "maxLength": "Please enter {0} digits",
+      "format": "Please use one-byte numbers."
+    },
+    "inventory": {
+      "validUser": "Valid User",
+      "invalidUser": "Inactive User",
+      "addUser": "New User Registration",
+      "bulkDelete": "Batch delete invalid users",
+      "update": "Update User Status",
+      "confirmUpdate": "Update user information"
+    }
+  },
+  "user": {
+    "titleNew": "Create new user",
+    "titleEdit": "Edit User",
+    "conditions": {
+      "companyName": "Company Name"
+    },
+    "headers": {
+      "username": "Name",
+      "email": "Email Address",
+      "userStatus": "User Status",
+      "updatedUser": "Last updated by",
+      "updatedAt": "Last updated",
+      "company": "Company Code/Company Name",
+      "user": "Name/E-mail address/User Type",
+      "status": "Valid/Invalid",
+      "type": "type",
+      "note": "note"
+    },
+    "csvHeaders": {
+      "companyCode": "Company Code",
+      "companyName": "Company Name",
+      "email": "Email Address",
+      "username": "Name",
+      "userStatus": "User Status",
+      "status": "Active/Inactive",
+      "type": "���",
+      "note": "���l",
+      "updatedUser": "Last updated by",
+      "updatedAt": "Last updated"
+    },
+    "actions": {
+      "search": "Refine",
+      "reset": "Reset",
+      "csv": "CSV Output",
+      "add": "New User Registration",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "status": {
+      "status1": "Logged in",
+      "status2": "Waiting for login",
+      "status3": "Waiting for password reset",
+      "status4": "Unknown",
+      "status5": "Created",
+      "status6": "Disabled"
+    },
+    "messages": {
+      "listMax": "The maximum number of items that can be displayed is 50.",
+      "listMaxAdmin": "The maximum number of items that can be displayed is 50. Please use the refinement or CSV output.",
+      "confirmDelete": "Are you sure you want to delete?",
+      "alertDelete": "Users who are logged in cannot be deleted",
+      "inputUsername": "Please enter a name",
+      "inputEmail": "Please enter email address"
+    },
+    "accessHistory": {
+      "title": "Access history (last 10 accesses)",
+      "creationDate": "Date",
+      "eventType": "Event",
+      "eventResponse": "Result",
+      "riskDecision": "Risk Determination",
+      "ipAddress": "IP",
+      "deviceName": "Device",
+      "city": "City",
+      "country": "Country"
+    },
+    "placeholder": {
+      "name": "Filter by Name (forward match)",
+      "mail": "Filter by email address (forward match)"
+    },
+    "annotation": "The users of your company who can log in to this system are displayed below.<br>Please regularly delete users who are no longer needed.<br><div class=\"note\">*If you would like to add a user or change a user's name, please send an e-mail to the following contact person.<div class=\"mail\">Sustainable Procurement, Operation & Procurement Department, Nomura Research Institute, Ltd. e-mail: <a href=\"mailto:sustaina-choutatsu@nri.co.jp\">sustaina-choutatsu@nri.co.jp</a></div></div>"
+  },
+  "footer": {
+    "home": "HOME",
+    "guide": "User's Guide",
+    "guideLink": "guide_en.pdf",
+    "inquiry": "Contact Us",
+    "environment": "Recommended System Environment",
+    "privacy": "Privacy Policy",
+    "privacyLink": "https://www.nri.com/en/site/privacy/"
+  },
+  "errorDescription": {
+    "addUser_409": "User already exists",
+    "addCompany_409": "Company code already exists.",
+    "UPDATE_COMPANY_409": "Already existing company code cannot be changed.",
+    "status_400": "The entered value is incorrect. Please try again.",
+    "status_403": "You do not have access rights.",
+    "status_404": "Page not found.",
+    "status_409": "Already updated by another user. Please reload.",
+    "status_500": "A system error has occurred. Please try again later.",
+    "statusUnknown": "An unknown error has occurred.",
+    "networkError": "Unable to connect to network.",
+    "userNotExists": "User not found."
+  },
+  "environment": {
+    "recommendBrowser": "Recommended Browser",
+    "message": "The following operating environment is recommended for Business Partner Communication System.",
+    "browserFirefox": "Firefox latest version",
+    "browserChrome": "Chrome latest version",
+    "browserEdge": "Microsoft Edge",
+    "browserSafari": "Safari latest version"
+  },
+  "inquiry": {
+    "title": "Business Partner Communication System Contact",
+    "contents": "<h3>For consultation or questions regarding the contents, please contact the following person in charge by e-mail.</h3><p>Procurement Management Department, Nomura Research Institute, Ltd.<br>Sustainable Procurement Manager e-mail: <a href=\"mailto:sustaina-choutatsu@nri.co.jp\">sustaina-choutatsu@nri.co.jp</a></p>"
+  },
+  "header": {
+    "link": "https://www.nri.com/en"
+  }
+}

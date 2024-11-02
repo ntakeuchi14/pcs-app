@@ -1,0 +1,182 @@
+{
+    "paths": [
+        {
+            "name": "/sign/search",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            },
+            "policyResourceName": "/sign/search"
+        },
+        {
+            "name": "/information/search",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            },
+            "policyResourceName": "/information/search"
+        },
+        {
+            "name": "/sign/csv",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            },
+            "policyResourceName": "/sign/csv"
+        },
+        {
+            "name": "/company/search",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            },
+            "policyResourceName": "/company/search"
+        },
+        {
+            "name": "/document",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            },
+            "policyResourceName": "/document"
+        },
+        {
+            "name": "/sign",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/POST",
+                    "/GET",
+                    "/PUT",
+                    "/PATCH"
+                ]
+            },
+            "policyResourceName": "/sign"
+        },
+        {
+            "name": "/company/csv",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            },
+            "policyResourceName": "/company/csv"
+        },
+        {
+            "name": "/information/csv",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            },
+            "policyResourceName": "/information/csv"
+        },
+        {
+            "name": "/user",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/POST",
+                    "/GET",
+                    "/DELETE"
+                ]
+            },
+            "policyResourceName": "/user"
+        },
+        {
+            "name": "/test",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            },
+            "policyResourceName": "/test"
+        },
+        {
+            "name": "/information",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/POST",
+                    "/GET",
+                    "/PUT",
+                    "/PATCH"
+                ]
+            },
+            "policyResourceName": "/information"
+        },
+        {
+            "name": "/company",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/POST",
+                    "/GET",
+                    "/PUT",
+                    "/PATCH"
+                ]
+            },
+            "policyResourceName": "/company"
+        },
+        {
+            "name": "/company/me",
+            "lambdaFunction": "DelegateFunction",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            },
+            "policyResourceName": "/company/me"
+        }
+    ],
+    "resourceName": "PcsAPI",
+    "apiName": "PcsAPI",
+    "functionArns": [
+        {
+            "lambdaFunction": "DelegateFunction"
+        }
+    ],
+    "privacy": {
+        "auth": 13,
+        "unauth": 0,
+        "authRoleName": "amplify-pcsapp-dev-75205-authRole",
+        "unAuthRoleName": "amplify-pcsapp-dev-75205-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "DelegateFunction",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ],
+    "uuid": "ba1aaa7b"
+}
