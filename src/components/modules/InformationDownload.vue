@@ -92,7 +92,7 @@ export default {
         }
       })
         .then(ar => {
-          Storage.get(`${this.S3_PATH_PREFIX}/${id}/${lang}`, { download: true })
+          Storage.get(`${this.S3_PATH_PREFIX}/${id}/${lang}`, { download: true, expires: 5 })
             .then(sr => {
               if( sr.Body ) {
                 if (lang === this.LANG_JAPANESE) {
