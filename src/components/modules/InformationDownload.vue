@@ -31,7 +31,8 @@
         </v-col>
       </v-row>
     </div>
-    <SwitchableSnackbars v-bind:snackbar="snackbar" />
+    <SwitchableSnackbars v-bind:snackbar="snackbar" @click.native.stop="" />
+    <Overlay :overlay="overlay" @click.native.stop="" />
   </div>
 </template>
 <script>
@@ -39,6 +40,7 @@ import { API } from "aws-amplify";
 import SwitchableSnackbars from '@/components/modules/SwitchableSnackbars.vue'
 import ConfirmModal from '@/components/modules/ConfirmModal.vue'
 import InformationAttachmentModal from '@/components/modules/InformationAttachmentModal.vue'
+import Overlay from '@/components/parts/Overlay'
 import { Storage } from 'aws-amplify';
 const apiName = 'PcsAPI';
 
@@ -47,6 +49,7 @@ export default {
     SwitchableSnackbars,
     InformationAttachmentModal,
     ConfirmModal,
+    Overlay,
   },
   data() {
     return {
@@ -55,8 +58,10 @@ export default {
         state: "",
         message: "",
       },
+      overlay: false,
       LANG_JAPANESE: "ja",
-      LANG_ENGLISH: "en"
+      LANG_ENGLISH: "en",
+      S3_PATH_PREFIX: "information/attachments",
     }
   },
   props: ['item'],
@@ -81,20 +86,19 @@ export default {
   },
   methods: {
     storageGet(id, lang){
-      API.get(apiName, '/information/attach', {
+      API.get(apiName, '/information', {
         queryStringParameters: {
           informationId: id,
-          lang: lang,
         }
       })
         .then(ar => {
-          Storage.get(`${id}/${lang}`, { download: true })
+          Storage.get(`${this.S3_PATH_PREFIX}/${id}/${lang}`, { download: true })
             .then(sr => {
               if( sr.Body ) {
                 if (lang === this.LANG_JAPANESE) {
-                  this.dispatchDownload(sr.Body, ar.filename ? ar.filename : 'attachment')
+                  this.downloadBlob(sr.Body, ar.data.filename ? ar.data.filename : 'attachment')
                 } else {
-                  this.dispatchDownload(sr.Body, ar.filenameEn ? ar.filenameEn : 'attachmentEn')
+                  this.downloadBlob(sr.Body, ar.data.filenameEn ? ar.data.filenameEn : 'attachmentEn')
                 }
               }
             })
@@ -143,13 +147,13 @@ export default {
         .then((b) => {
           if (b) {
             this.targets.push(information.key.informationId)
-            this.$emit("overlay", true)
+            this.overlay = true
             this.snackbar.state = ""
             this.snackbar.message = ""
             API.del(apiName, '/information/attach', { body: information.key })
               .then(() => {
-                Storage.remove(`${information.key.informationId}/ja`).catch((e)=>console.log(e))
-                Storage.remove(`${information.key.informationId}/en`).catch((e)=>console.log(e))
+                Storage.remove(`${this.S3_PATH_PREFIX}/${information.key.informationId}/ja`).catch((e)=>console.log(e))
+                Storage.remove(`${this.S3_PATH_PREFIX}/${information.key.informationId}/en`).catch((e)=>console.log(e))
                 this.$emit("refresh")
               })
               .catch((error) => {
@@ -163,7 +167,7 @@ export default {
               })
               .finally(() => {
                 this.targets = this.targets.filter(v => v !== information.key.informationId)
-                this.$emit("overlay", false)
+                this.overlay = false
               })
           }
         })
@@ -178,23 +182,23 @@ export default {
         .then(async (result) => {
           if (result) {
             this.targets.push(information.key.informationId)
-            this.$emit("overlay", true)
+            this.overlay = true
             try {
-              const version = await this.uploadAttachment(information.key.informationId, information.key.version, true, result.filename, "dummy")
+              const version = await this.uploadAttachment(information.key.informationId, information.key.version, true, result.filename)
               if ( version ) {
                 if (result.content) {
-                  await Storage.put(`${information.key.informationId}/ja` , result.content)
+                  await Storage.put(`${this.S3_PATH_PREFIX}/${information.key.informationId}/ja` , result.content)
                 }
                 if (result.filenameEn) {
-                  await this.uploadAttachment(information.key.informationId, version, false, result.filenameEn, "dummy")
+                  await this.uploadAttachment(information.key.informationId, version, false, result.filenameEn)
                   if(result.contentEn) {
-                    await Storage.put(`${information.key.informationId}/en` , result.contentEn)
+                    await Storage.put(`${this.S3_PATH_PREFIX}/${information.key.informationId}/en` , result.contentEn)
                   }
                 }
               }
               this.$emit("refresh")
             } finally {
-              this.$emit("overlay", false)
+              this.overlay = false
               this.targets = this.targets.filter(v => v !== information.key.informationId)
             }
           }
@@ -202,7 +206,7 @@ export default {
       return false
     },
 
-    async uploadAttachment(id, version, jp, filename, content) {
+    async uploadAttachment(id, version, jp, filename) {
       const res = await API.post(apiName, '/information/attach', {
         body: {
           key: {
@@ -210,7 +214,6 @@ export default {
             version: version
           },
           data: {
-            content: content,
             filename: filename,
             isJp: jp,
           }
