@@ -125,7 +125,7 @@
           const reader = new FileReader();
           reader.onload = async (e) => {
             try {
-              const attach = btoa(this.arrayBufferToBinaryString(e.target.result));
+              const attach = e.target.result
               const filename = file.name.substr(0, Const.FORM.FILENAME_MAX_LENGTH);
               if(jp) {
                 this.attach = attach
