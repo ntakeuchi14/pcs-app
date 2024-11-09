@@ -82,3 +82,4 @@ export const COOKIE = {
 export const CODE_KEYS = {
   USER_TYPE: 'user_type',
 }
+export const SEGMENTSIZE = 1024 * 3000

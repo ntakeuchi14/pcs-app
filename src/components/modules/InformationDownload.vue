@@ -19,7 +19,7 @@
 
     <div v-else>
       <v-row v-if="isAttach(item.data)">
-        <v-col cols="auto" class="d-inline-block text-truncate" style="max-width: 400px;">{{ isAttach(item.data) === LANG_JAPANESE
+        <v-col cols="auto" class="d-inline-block text-truncate" style="max-width: 400px;">{{ isAttach(item.data) === 'ja'
           ?
           item.data.filename : item.data.filenameEn }}</v-col>
         <v-col>
@@ -31,8 +31,8 @@
         </v-col>
       </v-row>
     </div>
-    <SwitchableSnackbars v-bind:snackbar="snackbar" @click.native.stop="" />
-    <Overlay :overlay="overlay" @click.native.stop="" />
+    <SwitchableSnackbars v-bind:snackbar="snackbar" />
+    <Overlay :overlay="overlay" />
   </div>
 </template>
 <script>
@@ -41,9 +41,8 @@ import SwitchableSnackbars from '@/components/modules/SwitchableSnackbars.vue'
 import ConfirmModal from '@/components/modules/ConfirmModal.vue'
 import InformationAttachmentModal from '@/components/modules/InformationAttachmentModal.vue'
 import Overlay from '@/components/parts/Overlay'
-import { Storage } from 'aws-amplify';
+import * as Const from '@/const.js'
 const apiName = 'PcsAPI';
-
 export default {
   components: {
     SwitchableSnackbars,
@@ -56,12 +55,9 @@ export default {
       targets: [],
       snackbar: {
         state: "",
-        message: "",
+        message: ""
       },
       overlay: false,
-      LANG_JAPANESE: "ja",
-      LANG_ENGLISH: "en",
-      S3_PATH_PREFIX: "information/attachments",
     }
   },
   props: ['item'],
@@ -70,13 +66,13 @@ export default {
       return (d) => {
         if (this.isJp) {
           if (d.isAttach) {
-            return this.LANG_JAPANESE
+            return 'ja'
           }
         } else {
           if (d.isAttachEn) {
-            return this.LANG_ENGLISH
+            return 'en'
           } else if (d.isAttach) {
-            return this.LANG_JAPANESE
+            return 'ja'
           }
         }
       }
@@ -85,58 +81,78 @@ export default {
   created() {
   },
   methods: {
-    storageGet(id, lang){
-      API.get(apiName, '/information', {
-        queryStringParameters: {
-          informationId: id,
+    async download(id, lang) {
+      const blobs = []
+      for(let i=0 ; i < 11 ; i++ ) {
+        const response = await API.get(apiName, '/information/attach', {
+          queryStringParameters: {
+            informationId: id,
+            lang: lang,
+            chunkSize: Const.SEGMENTSIZE,
+            chunkIndex: i,
+          }
+        })
+        if(!response.content) {
+          return undefined
         }
-      })
-        .then(ar => {
-          Storage.get(`${this.S3_PATH_PREFIX}/${id}/${lang}`, { download: true })
-            .then(sr => {
-              if( sr.Body ) {
-                if (lang === this.LANG_JAPANESE) {
-                  this.dispatchDownload(sr.Body, ar.data.filename ? ar.data.filename : 'attachment')
-                } else {
-                  this.dispatchDownload(sr.Body, ar.data.filenameEn ? ar.data.filenameEn : 'attachmentEn')
-                }
-              }
-            })
-            .catch(() => {
-              this.snackbar.state = "error"
-              this.snackbar.message = this.$t('message.attachmentDownloadFailed')
-            })
-            .finally(() => {
-              this.targets = this.targets.filter(v => v !== id)
-            })
-        })
-        .catch(() => {
-          this.snackbar.state = "error"
-          this.snackbar.message = this.$t('message.attachmentDownloadFailed')
-        })
-        .finally(() => {
-          this.targets = this.targets.filter(v => v !== id)
-        })
+        const blob = await this.base64DecodeAsBlobAll(response.content)
+        blobs.push(blob)
+        if( response.final ) {
+          return { content: new Blob(blobs), filename: response.filename }
+        }
+      }
     },
     informationAttachDownload(e, information) {
       e.stopPropagation()
       this.targets.push(information.key.informationId)
       this.snackbar.state = ""
       this.snackbar.message = ""
-      this.storageGet(information.key.informationId, this.isAttach(information.data))
+      API.get(apiName, '/information/attach', {
+        queryStringParameters: {
+          informationId: information.key.informationId,
+          lang: this.isAttach(information.data),
+        }
+      })
+        .then(response => {
+          if (this.isAttach(information.data) === 'ja') {
+            if (response.content) {
+              this.base64DecodeAsBlobAll(response.content).then(blob => this.dispatchDownload(blob, response.filename ? response.filename : 'attachment.pdf'))
+            }
+          } else {
+            if (response.contentEn) {
+              this.base64DecodeAsBlobAll(response.contentEn).then(blob => this.dispatchDownload(blob, response.filenameEn ? response.filenameEn : 'attachmentEn.pdf'))
+            }
+          }
+        })
+        .catch(() => {
+          this.snackbar.state = "error"
+          this.snackbar.message = this.$t('message.attachmentDownloadFailed')
+        })
+        .finally(() => {
+          this.targets = this.targets.filter(v => v !== information.key.informationId)
+        })
       return false
     },
 
-    informationAttachDownloadAdmin(e, information) {
+    async informationAttachDownloadAdmin(e, information) {
       e.stopPropagation()
       this.targets.push(information.key.informationId)
       this.snackbar.state = ""
       this.snackbar.message = ""
-      if(information.data.filename) {
-        this.storageGet(information.key.informationId, this.LANG_JAPANESE)
-      }
-      if(information.data.filenameEn) {
-        this.storageGet(information.key.informationId, this.LANG_ENGLISH)
+      try {
+        let response = await this.download(information.key.informationId, 'ja')
+        if( response && response.content &&  response.filename) {
+          this.dispatchDownload(response.content, response.filename)
+        }
+        response = await this.download(information.key.informationId, 'en')
+        if( response && response.content &&  response.filename ) {
+          this.dispatchDownload(response.content, response.filename )
+        }
+      } catch(e) {
+        this.snackbar.state = "error"
+        this.snackbar.message = this.$t('message.attachmentDownloadFailed')
+      } finally {
+        this.targets = this.targets.filter(v => v !== information.key.informationId)
       }
       return false
     },
@@ -151,11 +167,7 @@ export default {
             this.snackbar.state = ""
             this.snackbar.message = ""
             API.del(apiName, '/information/attach', { body: information.key })
-              .then(() => {
-                Storage.remove(`${this.S3_PATH_PREFIX}/${information.key.informationId}/ja`).catch((e)=>console.log(e))
-                Storage.remove(`${this.S3_PATH_PREFIX}/${information.key.informationId}/en`).catch((e)=>console.log(e))
-                this.$emit("refresh")
-              })
+              .then(() => this.$emit("refresh"))
               .catch((error) => {
                 if (error.response.status === 409) {
                   this.snackbar.message = this.$t('errorDescription.status_409')
@@ -184,17 +196,12 @@ export default {
             this.targets.push(information.key.informationId)
             this.overlay = true
             try {
-              const version = await this.uploadAttachment(information.key.informationId, information.key.version, true, result.filename)
-              if ( version ) {
-                if (result.content) {
-                  await Storage.put(`${this.S3_PATH_PREFIX}/${information.key.informationId}/ja` , result.content)
-                }
-                if (result.filenameEn) {
-                  await this.uploadAttachment(information.key.informationId, version, false, result.filenameEn)
-                  if(result.contentEn) {
-                    await Storage.put(`${this.S3_PATH_PREFIX}/${information.key.informationId}/en` , result.contentEn)
-                  }
-                }
+              let version = undefined
+              if(result.content) {
+                version = await this.uploadAttachment(information.key.informationId, information.key.version, true, result.filename, result.content)
+              }
+              if (result.contentEn) {
+                await this.uploadAttachment(information.key.informationId, version ? version:information.key.version, false, result.filenameEn, result.contentEn)
               }
               this.$emit("refresh")
             } finally {
@@ -206,28 +213,36 @@ export default {
       return false
     },
 
-    async uploadAttachment(id, version, jp, filename) {
-      const res = await API.post(apiName, '/information/attach', {
-        body: {
-          key: {
-            informationId: id,
-            version: version
-          },
-          data: {
-            filename: filename,
-            isJp: jp,
-          }
-        }
-      })
-        .catch((error) => {
-          if (error.response.status === 409) {
-            this.snackbar.message = this.$t('errorDescription.status_409')
-            this.snackbar.state = "error"
-          }
-          else {
-            throw error
+    async uploadAttachment(id, version, jp, filename, contents) {
+      let res = undefined
+      let v = version
+      for (let i=0 ; i < contents.length; i++ ) {
+        const content = contents[i]
+        res = await API.post(apiName, '/information/attach', {
+          body: {
+            key: {
+              informationId: id,
+              version: v
+            },
+            data: {
+              content: content,
+              filename: filename,
+              isJp: jp,
+              chunk: i!=0
+            }
           }
         })
+          .catch((error) => {
+            if (error.response.status === 409) {
+              this.snackbar.message = this.$t('errorDescription.status_409')
+              this.snackbar.state = "error"
+            }
+            else {
+              throw error
+            }
+          })
+        v = res.version
+      }
       return res ? res.version : res
     },
     attachError(msg) {
