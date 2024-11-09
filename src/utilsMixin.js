@@ -1,5 +1,5 @@
 import xlsxPopulate, { RichText } from "xlsx-populate";
-import { BASE64_HEADER, BASE64_HEADER_All, CHECK_INJECTION_PATTERN, COOKIE, SIGN, ANSWER, INFORMATION, DATE, SEGMENTSIZE } from "./const";
+import { BASE64_HEADER, BASE64_HEADER_All, CHECK_INJECTION_PATTERN, COOKIE, SIGN, ANSWER, INFORMATION, DATE } from "./const";
 import { I18n } from 'aws-amplify'
 export default{
   computed: {
@@ -333,16 +333,7 @@ export default{
     
     async sleep(time) {
       return new Promise( resolve => setTimeout(resolve, time) );
-    },
-    segmentation(arrayBuffer){
-      var segments= [];
-      var fi = 0;
-      while(fi*SEGMENTSIZE< arrayBuffer.byteLength){
-        segments.push( arrayBuffer.slice(fi*SEGMENTSIZE, (fi+1)*SEGMENTSIZE) );
-        ++fi;
-      }
-      return segments;
-    },
+    }
   },
 }
 
