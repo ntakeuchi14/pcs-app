@@ -85,6 +85,11 @@ export default {
   created() {
   },
   methods: {
+    async storageRemoveDir(key) {
+      for(const f of (await Storage.list(key))) {
+        await Storage.remove(f.key)
+      }
+    },
     storageGet(id, lang){
       API.get(apiName, '/information', {
         queryStringParameters: {
@@ -92,14 +97,16 @@ export default {
         }
       })
         .then(ar => {
-          Storage.get(`${this.S3_PATH_PREFIX}/${id}/${lang}`, { download: true, expires: 5 })
-            .then(sr => {
-              if( sr.Body ) {
-                if (lang === this.LANG_JAPANESE) {
-                  this.downloadBlob(sr.Body, ar.data.filename ? ar.data.filename : 'attachment')
-                } else {
-                  this.downloadBlob(sr.Body, ar.data.filenameEn ? ar.data.filenameEn : 'attachmentEn')
-                }
+          const filename = lang === this.LANG_JAPANESE ? ar.data.filename : ar.data.filenameEn
+          if( !filename ) {
+            throw new Error('404') 
+          }
+          Storage.get(`${this.S3_PATH_PREFIX}/${id}/${lang}/${filename}`, { expires: 5 })
+            .then(url => {
+              if( url ) {
+                const link = document.createElement("a");
+                link.href = url;
+                link.click();
               }
             })
             .catch(() => {
@@ -152,8 +159,8 @@ export default {
             this.snackbar.message = ""
             API.del(apiName, '/information/attach', { body: information.key })
               .then(() => {
-                Storage.remove(`${this.S3_PATH_PREFIX}/${information.key.informationId}/ja`).catch((e)=>console.log(e))
-                Storage.remove(`${this.S3_PATH_PREFIX}/${information.key.informationId}/en`).catch((e)=>console.log(e))
+                this.storageRemoveDir(`${this.S3_PATH_PREFIX}/${information.key.informationId}/${this.LANG_JAPANESE}/`).catch((e)=>console.log(e))
+                this.storageRemoveDir(`${this.S3_PATH_PREFIX}/${information.key.informationId}/${this.LANG_ENGLISH}/`).catch((e)=>console.log(e))
                 this.$emit("refresh")
               })
               .catch((error) => {
@@ -187,12 +194,14 @@ export default {
               const version = await this.uploadAttachment(information.key.informationId, information.key.version, true, result.filename)
               if ( version ) {
                 if (result.content) {
-                  await Storage.put(`${this.S3_PATH_PREFIX}/${information.key.informationId}/ja` , result.content)
+                  await this.storageRemoveDir(`${this.S3_PATH_PREFIX}/${information.key.informationId}/${this.LANG_JAPANESE}/`)
+                  await Storage.put(`${this.S3_PATH_PREFIX}/${information.key.informationId}/${this.LANG_JAPANESE}/${result.filename}` , result.content)
                 }
                 if (result.filenameEn) {
                   await this.uploadAttachment(information.key.informationId, version, false, result.filenameEn)
                   if(result.contentEn) {
-                    await Storage.put(`${this.S3_PATH_PREFIX}/${information.key.informationId}/en` , result.contentEn)
+                    await this.storageRemoveDir(`${this.S3_PATH_PREFIX}/${information.key.informationId}/${this.LANG_ENGLISH}/`)
+                    await Storage.put(`${this.S3_PATH_PREFIX}/${information.key.informationId}/${this.LANG_ENGLISH}/${result.filenameEn}` , result.contentEn)
                   }
                 }
               }
