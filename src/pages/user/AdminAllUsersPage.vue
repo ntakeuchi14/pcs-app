@@ -84,13 +84,15 @@
                 :no-data-text="$t('message.nodata')"
                 >
                 <template v-slot:item.companyCode="{ item }">
-                    <span>{{ item.gdbCode }}</span><br>
-                    <span
-                        class="d-inline-block text-truncate"
-                        style="max-width: 300px;"
-                    >
-                    {{ item.companyName }}
-                    </span>
+                    <div v-for="(it, index) in item.companies" :key="`c${index}`" v-if="it">
+                        <!-- <span >{{ it.gdbCode }}</span><br> -->
+                        <span
+                            class="d-inline-block text-truncate"
+                            style="max-width: 300px;"
+                        >
+                        {{ it.name }}({{ it.gdbCode }})
+                        </span>
+                    </div>
                 </template>
                 <template v-slot:item.username="{ item }">
                     <span
@@ -193,7 +195,7 @@
 </div>
 </template>
 <script>
-    import { API, Hub } from 'aws-amplify';
+    import { Hub } from 'aws-amplify';
     import * as Const from '@/const.js'
         const apiName = 'PcsAPI';
 
@@ -508,13 +510,17 @@
                 const b = true;
 
                 while (b) {
-                    const result = await API
-                        .get(apiName, path, myInit)
+                    const result = await this.apiGet(apiName, path, myInit)
                         .then(response => {
                             return response
                         })
 
-                    result.data.forEach((_) => users.push(_));
+                    result.data.forEach((d) => {
+                        if(d.companyCode) {
+                            d.companyCode = d.companyCode.split(',')
+                        }
+                        users.push(d)
+                    });
 
                     if (!result.nextToken || users.length >= 50) {
                         break;
@@ -526,11 +532,16 @@
                     const companies = await this.getCompaniesAsync(users)
                     this.users = users.map(_ => {
                         if (_.companyCode) {
-                            const s = companies.filter(__ => __.companyCode === _.companyCode);
-                            if (0 < s.length) {
-                                _.companyName = s[0].companyName
-                                _.gdbCode = s[0].gdbCode
-                            }
+                            _.companies = _.companyCode.map(c=>{
+                                const s = companies.filter(__ => __.companyCode === c);
+                                if (0 < s.length) {
+                                    return {
+                                        code: c,
+                                        name: s[0].companyName,
+                                        gdbCode: s[0].gdbCode
+                                    }
+                                }
+                            })
                         }
                         return _;
                     })
@@ -554,7 +565,7 @@
             },
             async getCompaniesAsync(users) {
                 if (0 < users.length) {
-                    const response = await API.get(apiName, '/company/all')
+                    const response = await this.apiGet(apiName, '/company/all')
                     return response
                 }
                 return [];
@@ -569,8 +580,7 @@
                     }
                 };
 
-                await API
-                    .del(apiName, path, myInit)
+                await this.apiDel(apiName, path, myInit)
                     .then(async function() {
                         await this.sleep(500)
                         await this.getUsersAsync()
@@ -598,8 +608,7 @@
             async changeUserStatusAsync(email, enabled = false) {
                 Hub.dispatch('OverlayChannel', { event: 'start' })
     
-                await API
-                    .patch(apiName, '/user', { body: {email: email, enabled: enabled} })
+                await this.apiPatch(apiName, '/user', { body: {email: email, enabled: enabled} })
                     .then(async function() {
                         await this.sleep(500)
                         await this.getUsersAsync()
@@ -639,8 +648,7 @@
                 const b = true;
 
                 while (b) {
-                    const result = await API
-                        .get(apiName, path, myInit)
+                    const result = await this.apiGet(apiName, path, myInit)
                         .then(response => {
                             return response
                         })
@@ -665,23 +673,30 @@
                     { text: this.$t('user.csvHeaders.updatedUser'), value: "lastUpdatedUser" },
                     { text: this.$t('user.csvHeaders.updatedAt'), value: "updatedAt" }
                 ]
-                users = users.map(_ => {
-                    _.userStatus = this.getUserStatus(_.userStatus)
-                    _.enabled = this.getEnabledText(_.enabled)
-                    _.updatedAt = this.$moment(_.updatedAt).format(Const.DATE.TIME_FORMAT)
-                    if (_.companyCode) {
-                        const s = companies.filter(__ => __.companyCode === _.companyCode);
-                        if (0 < s.length) {
-                            _.companyName = s[0].companyName
-                            _.gdbCode = s[0].gdbCode
+                const _users = []
+                for( const user of users ) {
+                    user.userStatus = this.getUserStatus(user.userStatus)
+                    user.enabled = this.getEnabledText(user.enabled)
+                    user.updatedAt = this.$moment(user.updatedAt).format(Const.DATE.TIME_FORMAT)
+                    if (user.companyCode) {
+                        for( const c of user.companyCode.split(',') ) {
+                            const s = companies.filter(__ => __.companyCode === c);
+                            if (0 < s.length) {
+                                const u = JSON.parse(JSON.stringify(user))
+                                u.companyName = s[0].companyName
+                                u.gdbCode = s[0].gdbCode
+                                u.companyCode = c
+                                _users.push(u)
+                            }
                         }
+                    } else {
+                        _users.push(user)
                     }
-                    return _;
-                })
+                }
 
                 const date = this.$moment().format(Const.DATE.FORMAT_D)
                 const fileName = `csu_${date}.csv`
-                this.csvDownload(users, csvHeaders, fileName)
+                this.csvDownload(_users, csvHeaders, fileName)
                 this.csvLoading = false
 
             },
@@ -752,7 +767,7 @@
             },
             async getUserTypes() {
                 Hub.dispatch('OverlayChannel', { event: 'start' })
-                this.userTypeCodes = await API.get(apiName, '/code', { 
+                this.userTypeCodes = await this.apiGet(apiName, '/code', { 
                     queryStringParameters: {
                         key: Const.CODE_KEYS.USER_TYPE
                     }})

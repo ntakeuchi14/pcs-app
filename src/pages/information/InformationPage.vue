@@ -316,7 +316,7 @@
   import Overlay from '@/components/parts/Overlay'
   import CompanyComboBox from '@/components/modules/CompanyComboBox.vue'
   import DatePicker from '@/components/modules/DatePicker'
-  import { API, Hub } from "aws-amplify"
+  import { Hub } from "aws-amplify"
   import * as Const from '@/const.js'
   import ReturnIndexButton from '@/components/parts/ReturnIndexButton'
   import CreateButtonWithModal from '@/components/modules/CreateButtonWithModal.vue'
@@ -458,8 +458,7 @@
             informationId: this.informationId,
           }
         }
-        await API
-          .get(apiName, path, myInit)
+        await this.apiGet(apiName, path, myInit)
           .then(response => {
             this.item = response.data
             this.key = response.key
@@ -506,8 +505,7 @@
         this.overlay = true
         this.disabled = true        
         
-        await API
-          .post(apiName, path, body)
+        await this.apiPost(apiName, path, body)
           .then(() => {
             this.$router.push({ name: 'informations', params: { snackbarState: "success", snackbarMessage: this.$t('messageSnackBar.createSucceed') } })
           })
@@ -550,8 +548,7 @@
         this.overlay = true
         this.disabled = true
         
-        await API
-          .put(apiName, path, body)
+        await this.apiPut(apiName, path, body)
           .then(() => {
             this.$router.push({ name: 'informations', params: { snackbarState: "success", snackbarMessage: this.$t('messageSnackBar.updateSucceed') } })
           })

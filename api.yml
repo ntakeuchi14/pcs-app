@@ -1,2564 +1,2846 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
-  version: 1.0.0
-  title: ビジネスパートナーコミュニケーションシステムAPI仕様書
-  description: BPCS API Document
+    title: ビジネスパートナーコミュニケーションシステムAPI仕様書
+    version: 1.0.0
+    description: BPCS API Document
 host: XXXXXX.execute-api.ap-northeast-1.amazonaws.com
 basePath: /dev
-tags:
-  - name: document
-  - name: sign
-  - name: company
-  - name: information
-  - name: user
-  - name: common
 schemes:
-- https
-- http
+    - https
+    - http
 paths:
-  /document:
-    get:
-      tags:
-      - document
-      summary: 同意書一覧を取得する
-      description: Ph1では全件取得のみ
-      operationId: getdocuments
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/Documents"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /sign:
-    get:
-      tags:
-      - sign
-      summary: 同意書記名を取得する
-      description: キー指定で同意書記名詳細を取得する
-      operationId: getSign
-      produces:
-      - application/json
-      parameters:
-      - name: implNo
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 実施番号
-      - name: companyCode
-        in: query
-        type: string
-        maxLength: 10
-        description: 会社コード
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/SignDetails"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-    post:
-      tags:
-      - sign
-      summary: 同意書記名登録
-      operationId: addSign
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 記名入力情報
-        required: true
-        schema:
-          $ref: "#/definitions/SignInput"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 排他エラー
-          schema:
-            $ref: "#/definitions/Error"
-    patch:
-      tags:
-      - sign
-      summary: 同意書記名差し戻し
-      operationId: rejectSign
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 記名キー情報
-        required: true
-        schema:
-          $ref: "#/definitions/SignKey"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 排他エラー
-          schema:
-            $ref: "#/definitions/Error"
-    put:
-      tags:
-      - sign
-      summary: 同意書記名再入力依頼
-      operationId: renewSign
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 記名キー情報
-        required: true
-        schema:
-          $ref: "#/definitions/SignKey"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 排他エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /sign/search:
-    get:
-      tags:
-      - sign
-      summary: 同意書記名一覧を取得する
-      operationId: getSigns
-      produces:
-      - application/json
-      parameters:
-      - name: keyword
-        in: query
-        type: string
-        description: 検索キーワード
-        maxLength: 256
-      - name: status
-        in: query
-        type: array
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-        items:
-          type: integer
-          enum: [0, 1, 9]
-      - name: companyCode
-        in: query
-        type: string
-        description: 会社コード
-        maxLength: 10
-      - name: implNo
-        in: query
-        type: integer
-        format: int64
-        description: 実施番号
-      - name: sortBy
-        in: query
-        type: string
-        required: true
-        description: ソートフィールド名
-        maxLength: 64
-      - name: sortDesc
-        in: query
-        type: boolean
-        required: true
-        description: 降順指定の場合true
-      - name: page
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: ページ番号
-      - name: itemsPerPage
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 1ページあたりの件数
-      - name: pastFlg
-        in: query
-        type: boolean
-        description: 過去入力分(入力済み、一時保存)を含むか<br> ※管理者の場合はこのフラグに関わらず含む
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/Signs"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /sign/csv:
-    get:
-      tags:
-      - sign
-      summary: 同意書記名一覧CSVを取得する
-      operationId: getSignsCsv
-      produces:
-      - application/json
-      parameters:
-      - name: keyword
-        in: query
-        type: string
-        description: 検索キーワード
-        maxLength: 256
-      - name: status
-        in: query
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-      - name: companyCode
-        in: query
-        type: string
-        description: 会社コード
-        maxLength: 10
-      - name: implNo
-        in: query
-        type: integer
-        format: int64
-        description: 実施番号
-      - name: sortBy
-        in: query
-        type: string
-        required: true
-        description: ソートフィールド名
-        maxLength: 64
-      - name: sortDesc
-        in: query
-        type: boolean
-        required: true
-        description: 降順指定の場合true
-      - name: page
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: ページ番号
-      - name: itemsPerPage
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 1ページあたりの件数
-      - name: pastFlg
-        in: query
-        type: boolean
-        description: 過去入力分(入力済み、一時保存)を含むか<br> ※管理者の場合はこのフラグに関わらず含む
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/SignCsvs"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /user:
-    get:
-      tags:
-      - user
-      summary: ユーザー一覧を取得する
-      description: レスポンスにnextTokenがある場合は継続して取得可能<BR>一般ユーザの場合は自社のユーザのみにフィルタリングする
-      operationId: getUsers
-      produces:
-      - application/json
-      parameters:
-      - name: keyword
-        in: query
-        type: string
-        description: 検索キーワード
-        maxLength: 256
-      - name: searchType
-        in: query
-        type: string
-        enum: [name, email, userStatus]
-        description: 検索キーワードタイプ
-      - name: limit
-        in: query
-        type: integer
-        format: int32
-        description: 取得最大件数
-      - name: nextToken
-        in: query
-        type: string
-        description: 継続取得用カーソル
-      - name: withAuthEvents
-        in: query
-        type: boolean
-        description: 認証イベント取得可否（管理者用で直近10件）
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/Users"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: Cognito接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-    post:
-      tags:
-      - user
-      summary: ユーザー登録
-      description: ユーザ登録後初期パスワードを設定し招待メールを送信する
-      operationId: addUser
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: ユーザ情報
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: Cognito接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 重複エラー
-          schema:
-            $ref: "#/definitions/Error"
-    patch:
-      tags:
-      - user
-      summary: ユーザーステータス変更
-      description: ユーザのステータス（有効/無効）を変更する<BR>一般ユーザの場合は自社ユーザの無効化のみ
-      operationId: changeUserStatus
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 更新ユーザキー情報
-        required: true
-        schema:
-          $ref: "#/definitions/ChangeUserStatus"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: Cognito接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-    delete:
-      tags:
-      - user
-      summary: ユーザー削除
-      description: ユーザを削除する
-      operationId: delUser
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 削除ユーザキー情報
-        required: true
-        schema:
-          $ref: "#/definitions/DeleteUser"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: Cognito接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /company:
-    get:
-      tags:
-      - company
-      summary: 会社情報を取得する
-      description: キー指定で会社情報を取得する
-      operationId: getCompany
-      produces:
-      - application/json
-      parameters:
-      - name: companyCodes
-        in: query
-        type: array
-        items:
-          type: string
-          maxLength: 10
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/CompanyDetails"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error" 
-    post:
-      tags:
-      - company
-      summary: 会社登録
-      operationId: addCompany
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 会社情報
-        required: true
-        schema:
-          $ref: "#/definitions/CompanyDetail"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 重複エラー
-          schema:
-            $ref: "#/definitions/Error"
-    put:
-      tags:
-      - company
-      summary: 会社更新
-      operationId: updateCompany
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 会社情報
-        required: true
-        schema:
-          $ref: "#/definitions/CompanyDetail"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 排他エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /company/me:
-    get:
-      tags:
-      - company
-      summary: ログインユーザの会社情報を取得する
-      operationId: getSelfCompany
-      produces:
-      - application/json
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/CompanyDetails"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error" 
-  /company/all:
-    get:
-      tags:
-      - company
-      summary: 全会社コードと会社名を返す
-      operationId: getAllCompany
-      produces:
-      - application/json
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/Company"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error" 
-  /company/search:
-    get:
-      tags:
-      - company
-      summary: 会社一覧を取得する
-      operationId: getCompanies
-      produces:
-      - application/json
-      parameters:
-      - name: companyName
-        in: query
-        type: string
-        description: 会社名(部分一致)
-        maxLength: 10
-      - name: sortBy
-        in: query
-        type: string
-        required: true
-        description: ソートフィールド名
-        maxLength: 64
-      - name: sortDesc
-        in: query
-        type: boolean
-        required: true
-        description: 降順指定の場合true
-      - name: page
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: ページ番号
-      - name: itemsPerPage
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 1ページあたりの件数
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/Companies"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /company/csv:
-    get:
-      tags:
-      - company
-      summary: 会社一覧CSVを取得する
-      operationId: getCompaniesCsv
-      produces:
-      - application/json
-      parameters:
-      - name: companyName
-        in: query
-        type: string
-        description: 会社名(部分一致)
-        maxLength: 10
-      - name: sortBy
-        in: query
-        type: string
-        required: true
-        description: ソートフィールド名
-        maxLength: 64
-      - name: sortDesc
-        in: query
-        type: boolean
-        required: true
-        description: 降順指定の場合true
-      - name: page
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: ページ番号
-      - name: itemsPerPage
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 1ページあたりの件数
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/CompanyCsvs"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /information:
-    get:
-      tags:
-      - information
-      summary: 連絡事項を取得する
-      description: キー指定で会社情報を取得する
-      operationId: getInformation
-      produces:
-      - application/json
-      parameters:
-      - name: informationId
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 連絡事項ID
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/InformationRef"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error" 
-    post:
-      tags:
-      - information
-      summary: 連絡事項登録
-      operationId: addInformation
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 連絡事項
-        required: true
-        schema:
-          $ref: "#/definitions/InformationDetail"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 重複エラー
-          schema:
-            $ref: "#/definitions/Error"
-    put:
-      tags:
-      - information
-      summary: 連絡事項編集
-      operationId: updateInformation
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 連絡事項
-        required: true
-        schema:
-          $ref: "#/definitions/InformationInput"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 排他エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /information/search:
-    get:
-      tags:
-      - information
-      summary: 連絡事項一覧を取得する
-      operationId: getInformations
-      produces:
-      - application/json
-      parameters:
-      - name: searchWord
-        in: query
-        type: string
-        description: フリーワード
-        maxLength: 50
-      - name: companyCode
-        in: query
-        type: string
-        description: 会社コード
-        maxLength: 10
-      - name: status
-        in: query
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未公開、1:公開中、9:公開終了)
-      - name: sortBy
-        in: query
-        type: string
-        required: true
-        description: ソートフィールド名
-        maxLength: 64
-      - name: sortDesc
-        in: query
-        type: boolean
-        required: true
-        description: 降順指定の場合true
-      - name: page
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: ページ番号
-      - name: itemsPerPage
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 1ページあたりの件数
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/Informations"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /information/csv:
-    get:
-      tags:
-      - information
-      summary: 連絡事項一覧CSVを取得する
-      operationId: getInformationsCsv
-      produces:
-      - application/json
-      parameters:
-      - name: searchWord
-        in: query
-        type: string
-        description: フリーワード
-        maxLength: 50
-      - name: companyCode
-        in: query
-        type: string
-        description: 会社コード
-        maxLength: 10
-      - name: sortBy
-        in: query
-        type: string
-        required: true
-        description: ソートフィールド名
-        maxLength: 64
-      - name: sortDesc
-        in: query
-        type: boolean
-        required: true
-        description: 降順指定の場合true
-      - name: page
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: ページ番号
-      - name: itemsPerPage
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 1ページあたりの件数
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/InformationCsvs"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /information/attach:
-    get:
-      tags:
-      - information
-      summary: 連絡事項添付ファイルのダウンロード
-      operationId: downloadInformationAttach
-      produces:
-      - application/json
-      parameters:
-      - name: informationId
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 連絡事項ID
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/InformationAttachInput"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error" 
-    post:
-      tags:
-      - information
-      summary: 連絡事項添付ファイルのアップロード
-      operationId: uploadInformationAttach
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 連絡事項添付ファイル
-        required: true
-        schema:
-          $ref: "#/definitions/InformationAttachInput"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 排他エラー
-          schema:
-            $ref: "#/definitions/Error"
-    delete:
-      tags:
-      - information
-      summary: 連絡事項添付ファイルの削除
-      description: 連絡事項添付ファイルを削除する
-      operationId: deleteInformationAttach
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          $ref: "#/definitions/InformationKey"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: Cognito接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /question:
-    get:
-      tags:
-      - question
-      summary: アンケート一覧を取得する
-      operationId: getQuestions
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/Questions"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /question/revisions:
-    get:
-      tags:
-      - question
-      summary: 指定したアンケート実施番号のリビジョン一覧を取得する
-      operationId: getQuestionRevisions
-      parameters:
-      - name: implNo
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 実施番号
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/Revisions"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /question/excel:
-    get:
-      tags:
-      - question
-      summary: アンケート回答EXCELのフォーマットをダウンロードする
-      operationId: getQuestionExcel
-      produces:
-      - application/json
-      parameters:
-      - name: implNo
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 実施番号
-      - name: revisionNo
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: リビジョン
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            type: file
-            description: Excelバイナリデータ
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /answer:
-    get:
-      tags:
-      - answer
-      summary: アンケート回答を取得する
-      description: キー指定でアンケート回答詳細を取得する
-      operationId: getAnswer
-      produces:
-      - application/json
-      parameters:
-      - name: implNo
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 実施番号
-      - name: companyCode
-        in: query
-        type: string
-        maxLength: 10
-        description: 会社コード
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/AnswerDetails"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-    post:
-      tags:
-      - answer
-      summary: アンケート回答登録
-      operationId: addAnswer
-      consumes:
-      - multipart/form-data
-      produces:
-      - multipart/form-data
-      parameters:
-      - in: body
-        name: body
-        description: 回答入力情報
-        required: true
-        schema:
-          $ref: "#/definitions/AnswerInput"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 排他エラー
-          schema:
-            $ref: "#/definitions/Error"
-    patch:
-      tags:
-      - answer
-      summary: アンケート回答差し戻し
-      operationId: rejectAnswer
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 回答キー情報
-        required: true
-        schema:
-          $ref: "#/definitions/AnswerKey"
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 排他エラー
-          schema:
-            $ref: "#/definitions/Error"
-    put:
-      tags:
-      - answer
-      summary: アンケート再回答依頼
-      operationId: renewAnswer
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: body
-        description: 回答キー情報
-        required: true
-        schema:
-          type: object
-          required:
+    /document:
+        get:
+            tags:
+                - document
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/Documents'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getdocuments
+            summary: 同意書一覧を取得する
+            description: Ph1では全件取得のみ
+    /sign:
+        get:
+            produces:
+                - application/json
+            tags:
+                - sign
+            parameters:
+                -
+                    name: implNo
+                    description: 実施番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: companyCode
+                    description: 会社コード
+                    in: query
+                    type: string
+                    maxLength: 11
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/SignDetails'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getSign
+            summary: 同意書記名を取得する
+            description: キー指定で同意書記名詳細を取得する
+        put:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - sign
+            parameters:
+                -
+                    name: body
+                    description: 記名キー情報
+                    schema:
+                        $ref: '#/definitions/SignKey'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 排他エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: renewSign
+            summary: 同意書記名再入力依頼
+        post:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - sign
+            parameters:
+                -
+                    name: body
+                    description: 記名入力情報
+                    schema:
+                        $ref: '#/definitions/SignInput'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 排他エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: addSign
+            summary: 同意書記名登録
+        patch:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - sign
+            parameters:
+                -
+                    name: body
+                    description: 記名キー情報
+                    schema:
+                        $ref: '#/definitions/SignKey'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 排他エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: rejectSign
+            summary: 同意書記名差し戻し
+    /sign/search:
+        get:
+            produces:
+                - application/json
+            tags:
+                - sign
+            parameters:
+                -
+                    name: keyword
+                    description: 検索キーワード
+                    in: query
+                    type: string
+                    maxLength: 256
+                -
+                    name: status
+                    description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                    in: query
+                    type: array
+                    items:
+                        type: integer
+                        enum:
+                            - '0'
+                            - '1'
+                            - '9'
+                -
+                    name: companyCode
+                    description: 会社コード
+                    in: query
+                    type: string
+                    maxLength: 11
+                -
+                    name: implNo
+                    description: 実施番号
+                    in: query
+                    type: integer
+                    format: int64
+                -
+                    name: sortBy
+                    description: ソートフィールド名
+                    in: query
+                    required: true
+                    type: string
+                    maxLength: 64
+                -
+                    name: sortDesc
+                    description: 降順指定の場合true
+                    in: query
+                    required: true
+                    type: boolean
+                -
+                    name: page
+                    description: ページ番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: itemsPerPage
+                    description: 1ページあたりの件数
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: pastFlg
+                    description: 過去入力分(入力済み、一時保存)を含むか<br> ※管理者の場合はこのフラグに関わらず含む
+                    in: query
+                    type: boolean
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/Signs'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getSigns
+            summary: 同意書記名一覧を取得する
+    /sign/csv:
+        get:
+            produces:
+                - application/json
+            tags:
+                - sign
+            parameters:
+                -
+                    name: keyword
+                    description: 検索キーワード
+                    in: query
+                    type: string
+                    maxLength: 256
+                -
+                    name: status
+                    description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                    in: query
+                    type: integer
+                    enum:
+                        - '0'
+                        - '1'
+                        - '9'
+                -
+                    name: companyCode
+                    description: 会社コード
+                    in: query
+                    type: string
+                    maxLength: 11
+                -
+                    name: implNo
+                    description: 実施番号
+                    in: query
+                    type: integer
+                    format: int64
+                -
+                    name: sortBy
+                    description: ソートフィールド名
+                    in: query
+                    required: true
+                    type: string
+                    maxLength: 64
+                -
+                    name: sortDesc
+                    description: 降順指定の場合true
+                    in: query
+                    required: true
+                    type: boolean
+                -
+                    name: page
+                    description: ページ番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: itemsPerPage
+                    description: 1ページあたりの件数
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: pastFlg
+                    description: 過去入力分(入力済み、一時保存)を含むか<br> ※管理者の場合はこのフラグに関わらず含む
+                    in: query
+                    type: boolean
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/SignCsvs'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getSignsCsv
+            summary: 同意書記名一覧CSVを取得する
+    /user:
+        get:
+            produces:
+                - application/json
+            tags:
+                - user
+            parameters:
+                -
+                    name: keyword
+                    description: 検索キーワード
+                    in: query
+                    type: string
+                    maxLength: 256
+                -
+                    name: searchType
+                    description: 検索キーワードタイプ
+                    in: query
+                    type: string
+                    enum:
+                        - name
+                        - email
+                        - userStatus
+                        - status
+                        - userType
+                -
+                    name: limit
+                    description: 取得最大件数
+                    in: query
+                    type: integer
+                    format: int32
+                -
+                    name: nextToken
+                    description: 継続取得用カーソル
+                    in: query
+                    type: string
+                -
+                    name: withAuthEvents
+                    description: 認証イベント取得可否（管理者用で直近10件）
+                    in: query
+                    type: boolean
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/Users'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: Cognito接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getUsers
+            summary: ユーザー一覧を取得する
+            description: レスポンスにnextTokenがある場合は継続して取得可能<BR>一般ユーザの場合は自社のユーザのみにフィルタリングする
+        post:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - user
+            parameters:
+                -
+                    name: body
+                    description: ユーザ情報
+                    schema:
+                        $ref: '#/definitions/User'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 重複エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: Cognito接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: addUser
+            summary: ユーザー登録
+            description: ユーザ登録後初期パスワードを設定し招待メールを送信する
+        delete:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - user
+            parameters:
+                -
+                    name: body
+                    description: 削除ユーザキー情報
+                    schema:
+                        $ref: '#/definitions/DeleteUser'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: Cognito接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: delUser
+            summary: ユーザー削除
+            description: ユーザを削除する
+        patch:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - user
+            parameters:
+                -
+                    name: body
+                    description: 更新ユーザキー情報
+                    schema:
+                        $ref: '#/definitions/ChangeUserStatus'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: Cognito接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: changeUserStatus
+            summary: ユーザーステータス変更
+            description: ユーザのステータス（有効/無効）を変更する<BR>一般ユーザの場合は自社ユーザの無効化のみ
+    /company:
+        get:
+            produces:
+                - application/json
+            tags:
+                - company
+            parameters:
+                -
+                    name: companyCodes
+                    in: query
+                    type: array
+                    items:
+                        type: string
+                        maxLength: 10
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/CompanyDetails'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getCompany
+            summary: 会社情報を取得する
+            description: キー指定で会社情報を取得する
+        put:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - company
+            parameters:
+                -
+                    name: body
+                    description: 会社情報
+                    schema:
+                        $ref: '#/definitions/CompanyDetail'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 排他エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: updateCompany
+            summary: 会社更新
+        post:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - company
+            parameters:
+                -
+                    name: body
+                    description: 会社情報
+                    schema:
+                        $ref: '#/definitions/CompanyDetail'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 重複エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: addCompany
+            summary: 会社登録
+    /company/me:
+        get:
+            produces:
+                - application/json
+            tags:
+                - company
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/CompanyDetails'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getSelfCompany
+            summary: ログインユーザの会社情報を取得する
+    /company/all:
+        get:
+            produces:
+                - application/json
+            tags:
+                - company
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        type: array
+                        items:
+                            $ref: '#/definitions/Company'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getAllCompany
+            summary: 全会社コードと会社名を返す
+    /company/search:
+        get:
+            produces:
+                - application/json
+            tags:
+                - company
+            parameters:
+                -
+                    name: companyName
+                    description: 会社名(部分一致)
+                    in: query
+                    type: string
+                    maxLength: 10
+                -
+                    name: sortBy
+                    description: ソートフィールド名
+                    in: query
+                    required: true
+                    type: string
+                    maxLength: 64
+                -
+                    name: sortDesc
+                    description: 降順指定の場合true
+                    in: query
+                    required: true
+                    type: boolean
+                -
+                    name: page
+                    description: ページ番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: itemsPerPage
+                    description: 1ページあたりの件数
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/Companies'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getCompanies
+            summary: 会社一覧を取得する
+    /company/csv:
+        get:
+            produces:
+                - application/json
+            tags:
+                - company
+            parameters:
+                -
+                    name: companyName
+                    description: 会社名(部分一致)
+                    in: query
+                    type: string
+                    maxLength: 10
+                -
+                    name: sortBy
+                    description: ソートフィールド名
+                    in: query
+                    required: true
+                    type: string
+                    maxLength: 64
+                -
+                    name: sortDesc
+                    description: 降順指定の場合true
+                    in: query
+                    required: true
+                    type: boolean
+                -
+                    name: page
+                    description: ページ番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: itemsPerPage
+                    description: 1ページあたりの件数
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/CompanyCsvs'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getCompaniesCsv
+            summary: 会社一覧CSVを取得する
+    /information:
+        get:
+            produces:
+                - application/json
+            tags:
+                - information
+            parameters:
+                -
+                    name: informationId
+                    description: 連絡事項ID
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/InformationRef'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getInformation
+            summary: 連絡事項を取得する
+            description: キー指定で会社情報を取得する
+        put:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - information
+            parameters:
+                -
+                    name: body
+                    description: 連絡事項
+                    schema:
+                        $ref: '#/definitions/InformationInput'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 排他エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: updateInformation
+            summary: 連絡事項編集
+        post:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - information
+            parameters:
+                -
+                    name: body
+                    description: 連絡事項
+                    schema:
+                        $ref: '#/definitions/InformationDetail'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 重複エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: addInformation
+            summary: 連絡事項登録
+    /information/search:
+        get:
+            produces:
+                - application/json
+            tags:
+                - information
+            parameters:
+                -
+                    name: searchWord
+                    description: フリーワード
+                    in: query
+                    type: string
+                    maxLength: 50
+                -
+                    name: companyCode
+                    description: 会社コード
+                    in: query
+                    type: string
+                    maxLength: 11
+                -
+                    name: status
+                    description: '状態(0:未公開、1:公開中、9:公開終了)'
+                    in: query
+                    type: integer
+                    enum:
+                        - '0'
+                        - '1'
+                        - '9'
+                -
+                    name: sortBy
+                    description: ソートフィールド名
+                    in: query
+                    required: true
+                    type: string
+                    maxLength: 64
+                -
+                    name: sortDesc
+                    description: 降順指定の場合true
+                    in: query
+                    required: true
+                    type: boolean
+                -
+                    name: page
+                    description: ページ番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: itemsPerPage
+                    description: 1ページあたりの件数
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/Informations'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getInformations
+            summary: 連絡事項一覧を取得する
+    /information/csv:
+        get:
+            produces:
+                - application/json
+            tags:
+                - information
+            parameters:
+                -
+                    name: searchWord
+                    description: フリーワード
+                    in: query
+                    type: string
+                    maxLength: 50
+                -
+                    name: companyCode
+                    description: 会社コード
+                    in: query
+                    type: string
+                    maxLength: 11
+                -
+                    name: sortBy
+                    description: ソートフィールド名
+                    in: query
+                    required: true
+                    type: string
+                    maxLength: 64
+                -
+                    name: sortDesc
+                    description: 降順指定の場合true
+                    in: query
+                    required: true
+                    type: boolean
+                -
+                    name: page
+                    description: ページ番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: itemsPerPage
+                    description: 1ページあたりの件数
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/InformationCsvs'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getInformationsCsv
+            summary: 連絡事項一覧CSVを取得する
+    /information/attach:
+        post:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - information
+            parameters:
+                -
+                    name: body
+                    description: 連絡事項添付ファイル
+                    schema:
+                        $ref: '#/definitions/InformationAttachInput'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 排他エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: uploadInformationAttach
+            summary: 連絡事項添付ファイル情報の更新
+        delete:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - information
+            parameters:
+                -
+                    name: body
+                    schema:
+                        $ref: '#/definitions/InformationKey'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: Cognito接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: deleteInformationAttach
+            summary: 連絡事項添付ファイルの削除
+            description: 連絡事項添付ファイルを削除する
+    /question:
+        get:
+            tags:
+                - question
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/Questions'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getQuestions
+            summary: アンケート一覧を取得する
+    /question/revisions:
+        get:
+            tags:
+                - question
+            parameters:
+                -
+                    name: implNo
+                    description: 実施番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/Revisions'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getQuestionRevisions
+            summary: 指定したアンケート実施番号のリビジョン一覧を取得する
+    /question/excel:
+        get:
+            produces:
+                - application/json
+            tags:
+                - question
+            parameters:
+                -
+                    name: implNo
+                    description: 実施番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: revisionNo
+                    description: リビジョン
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        description: Excelバイナリデータ
+                        type: file
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getQuestionExcel
+            summary: アンケート回答EXCELのフォーマットをダウンロードする
+    /answer:
+        get:
+            produces:
+                - application/json
+            tags:
+                - answer
+            parameters:
+                -
+                    name: implNo
+                    description: 実施番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: companyCode
+                    description: 会社コード
+                    in: query
+                    type: string
+                    maxLength: 11
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/AnswerDetails'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getAnswer
+            summary: アンケート回答を取得する
+            description: キー指定でアンケート回答詳細を取得する
+        put:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - answer
+            parameters:
+                -
+                    name: body
+                    description: 回答キー情報
+                    schema:
+                        $ref: '#/definitions/AnswerKeyWithReason'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 排他エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: renewAnswer
+            summary: アンケート再回答依頼
+        post:
+            consumes:
+                - multipart/form-data
+            produces:
+                - multipart/form-data
+            tags:
+                - answer
+            parameters:
+                -
+                    name: body
+                    description: 回答入力情報
+                    schema:
+                        $ref: '#/definitions/AnswerInput'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 排他エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: addAnswer
+            summary: アンケート回答登録
+        patch:
+            consumes:
+                - application/json
+            produces:
+                - application/json
+            tags:
+                - answer
+            parameters:
+                -
+                    name: body
+                    description: 回答キー情報
+                    schema:
+                        $ref: '#/definitions/AnswerKey'
+                    in: body
+                    required: true
+            responses:
+                '200':
+                    description: search successful operation
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '409':
+                    description: 排他エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: rejectAnswer
+            summary: アンケート回答差し戻し
+    /answer/search:
+        get:
+            produces:
+                - application/json
+            tags:
+                - answer
+            parameters:
+                -
+                    name: keyword
+                    description: 検索キーワード
+                    in: query
+                    type: string
+                    maxLength: 256
+                -
+                    name: status
+                    description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                    in: query
+                    type: array
+                    items:
+                        type: integer
+                        enum:
+                            - '0'
+                            - '1'
+                            - '9'
+                -
+                    name: companyCode
+                    description: 会社コード
+                    in: query
+                    type: string
+                    maxLength: 11
+                -
+                    name: implNo
+                    description: 実施番号
+                    in: query
+                    type: integer
+                    format: int64
+                -
+                    name: revisionNo
+                    description: リビジョン ※リビジョンの指定がある時は対象リビジョンの全履歴一覧が返却される（それ以外は最新のリビジョン・履歴のレコードのみ）
+                    in: query
+                    type: integer
+                    format: int64
+                -
+                    name: sortBy
+                    description: ソートフィールド名
+                    in: query
+                    required: true
+                    type: string
+                    maxLength: 64
+                -
+                    name: sortDesc
+                    description: 降順指定の場合true
+                    in: query
+                    required: true
+                    type: boolean
+                -
+                    name: page
+                    description: ページ番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: itemsPerPage
+                    description: 1ページあたりの件数
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: pastFlg
+                    description: 過去入力分(入力済み、一時保存)を含むか<br> ※管理者の場合はこのフラグに関わらず含む
+                    in: query
+                    type: boolean
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/Answers'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getAnswers
+            summary: 同意書署名一覧を取得する
+    /answer/csv:
+        get:
+            produces:
+                - application/json
+            tags:
+                - answer
+            parameters:
+                -
+                    name: keyword
+                    description: 検索キーワード
+                    in: query
+                    type: string
+                    maxLength: 256
+                -
+                    name: status
+                    description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                    in: query
+                    type: integer
+                    enum:
+                        - '0'
+                        - '1'
+                        - '9'
+                -
+                    name: companyCode
+                    description: 会社コード
+                    in: query
+                    type: string
+                    maxLength: 11
+                -
+                    name: implNo
+                    description: 実施番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: revisionNo
+                    description: リビジョン
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: sortBy
+                    description: ソートフィールド名
+                    in: query
+                    required: true
+                    type: string
+                    maxLength: 64
+                -
+                    name: sortDesc
+                    description: 降順指定の場合true
+                    in: query
+                    required: true
+                    type: boolean
+                -
+                    name: page
+                    description: ページ番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: itemsPerPage
+                    description: 1ページあたりの件数
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: pastFlg
+                    description: 過去入力分(入力済み、一時保存)を含むか<br> ※管理者の場合はこのフラグに関わらず含む
+                    in: query
+                    type: boolean
+                -
+                    name: isWithHeader
+                    description: ヘッダ情報を返却する場合のみtrue
+                    in: query
+                    type: boolean
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/AnswerCsvs'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getAnswerCsv
+            summary: アンケート回答一覧CSVを取得する
+    /answer/excel:
+        get:
+            produces:
+                - application/json
+            tags:
+                - answer
+            parameters:
+                -
+                    name: implNo
+                    description: 実施番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: revisonNo
+                    description: リビジョン
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: historyNo
+                    description: 履歴番号
+                    in: query
+                    required: true
+                    type: integer
+                    format: int64
+                -
+                    name: companyCode
+                    description: 会社コード
+                    in: query
+                    type: string
+                    maxLength: 11
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        description: Excelバイナリデータ
+                        type: file
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getAnswerExcel
+            summary: アンケート回答EXCELをダウンロードする
+    /code:
+        get:
+            produces:
+                - application/json
+            tags:
+                - common
+            parameters:
+                -
+                    name: key
+                    description: コードキー
+                    in: query
+                    required: true
+                    type: string
+            responses:
+                '200':
+                    description: search successful operation
+                    schema:
+                        $ref: '#/definitions/Codes'
+                '400':
+                    description: 入力値エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '403':
+                    description: 権限エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+                '404':
+                    description: コードなし
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    description: 予期しないエラー発生
+                    schema:
+                        $ref: '#/definitions/Error'
+                '503':
+                    description: RDS接続エラー
+                    schema:
+                        $ref: '#/definitions/Error'
+            operationId: getCodes
+            summary: コードマスタ取得
+            description: コードキーを指定してコードマスタを取得する
+definitions:
+    Users:
+        type: object
+        properties:
+            nextToken:
+                type: string
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/User'
+    User:
+        required:
+            - username
+            - email
+            - companyCode
+        type: object
+        properties:
+            username:
+                description: ユーザ名
+                maxLength: 256
+                type: string
+            email:
+                description: メールアドレス
+                maxLength: 256
+                type: string
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            userStatus:
+                description: ユーザー状態
+                type: string
+            enabled:
+                description: 有効無効判断用パラメータ
+                type: boolean
+            role:
+                description: ロール
+                enum:
+                    - admin
+                type: string
+            type:
+                description: ユーザ種別
+                type: string
+            note:
+                description: 備考欄
+                type: string
+            updatedAt:
+                format: datetime
+                description: 最終更新時刻
+                type: string
+            lastUpdatedUser:
+                description: 最終更新ユーザ
+                type: string
+            authEvents:
+                description: 認証情報
+                type: object
+    ChangeUserStatus:
+        required:
+            - email
+            - enabled
+        type: object
+        properties:
+            email:
+                description: メールアドレス
+                maxLength: 256
+                type: string
+            enabled:
+                description: 有効無効判断用パラメータ
+                type: boolean
+    DeleteUser:
+        required:
+            - email
+        type: object
+        properties:
+            email:
+                description: メールアドレス
+                maxLength: 256
+                type: string
+    Documents:
+        type: object
+        properties:
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/Document'
+    Document:
+        required:
+            - implNo
+            - title
+            - titleEn
+        type: object
+        properties:
+            implNo:
+                format: int64
+                description: 実施番号
+                type: integer
+            title:
+                description: 同意書タイトル(日本語)
+                type: string
+            titleEn:
+                description: 同意書タイトル(英語)
+                type: string
+    Signs:
+        type: object
+        properties:
+            allCount:
+                format: int64
+                type: integer
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/Sign'
+    Sign:
+        required:
+            - implNo
+            - revisionNo
+            - title
+            - titleEn
+        type: object
+        properties:
+            lastUpdateDate:
+                format: date
+                description: 最終更新時刻
+                type: string
+            startDate:
+                format: date
+                description: 実施期間開始日
+                type: string
+            endDate:
+                format: date
+                description: 実施期間終了日
+                type: string
+            requestDate:
+                format: date
+                description: 依頼日
+                type: string
+            signedAt:
+                format: date
+                description: 記名時刻
+                type: string
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            gdbCode:
+                description: GDBコード
+                maxLength: 10
+                type: string
+            companyName:
+                description: 会社名
+                maxLength: 255
+                type: string
+            implNo:
+                format: int64
+                description: 実施番号
+                type: integer
+            title:
+                description: 同意書タイトル(日本語)
+                type: string
+            titleEn:
+                description: 同意書タイトル(英語)
+                type: string
+            status:
+                description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                enum:
+                    - '0'
+                    - '1'
+                    - '9'
+                type: integer
+    SignCsvs:
+        type: object
+        properties:
+            allCount:
+                format: int64
+                type: integer
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/SignCsv'
+    SignCsv:
+        required:
+            - implNo
+            - revisionNo
+            - companyCode
+            - historyNo
+            - title
+            - titleEn
+        type: object
+        properties:
+            implNo:
+                format: int64
+                description: 実施番号
+                type: integer
+            title:
+                description: 同意書タイトル(日本語)
+                type: string
+            titleEn:
+                description: 同意書タイトル(英語)
+                type: string
+            revisionNo:
+                format: int64
+                description: リビジョン
+                type: integer
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            gdbCode:
+                description: GDBコード
+                maxLength: 10
+                type: string
+            companyName:
+                description: 会社名
+                maxLength: 255
+                type: string
+            historyNo:
+                format: int64
+                description: 履歴番号
+                type: integer
+            startDate:
+                format: date
+                description: 実施期間開始日
+                type: string
+            endDate:
+                format: date
+                description: 実施期間終了日
+                type: string
+            requestDate:
+                format: date
+                description: 依頼日
+                type: string
+            signedAt:
+                format: date
+                description: 記名時刻
+                type: string
+            status:
+                description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                enum:
+                    - '0'
+                    - '1'
+                    - '9'
+                type: integer
+            lastUpdateUser:
+                description: 最終更新者名
+                type: string
+            lastUpdateUserAddress:
+                description: 最終更新者メールアドレス
+                type: string
+            lastUpdateDate:
+                format: date
+                description: 最終更新日
+                type: string
+            signItems:
+                description: 記名項目(日本語)
+                type: array
+                items:
+                    type: string
+            signItemsEn:
+                description: 記名項目(英語)
+                type: array
+                items:
+                    type: string
+            sign:
+                description: 記名内容
+                type: array
+                items:
+                    type: string
+    SignKey:
+        required:
             - implNo
             - revisionNo
             - historyNo
             - companyCode
             - version
-          properties:
-            implNo:
-              type: integer
-              format: int64
-              description: 実施番号
-            revisionNo:
-              type: integer
-              format: int64
-              description: リビジョン
-            historyNo:
-              type: integer
-              format: int64
-              description: 履歴番号
-            companyCode:
-              type: string
-              maxLength: 10
-              description: 会社コード
-            version:
-              type: integer
-              format: int64
-              description: バージョン
-            reason:
-              type: string
-              description: 再回答依頼
-      responses:
-        200:
-          description: search successful operation
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-        409:
-          description: 排他エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /answer/search:
-    get:
-      tags:
-      - answer
-      summary: 同意書署名一覧を取得する
-      operationId: getAnswers
-      produces:
-      - application/json
-      parameters:
-      - name: keyword
-        in: query
-        type: string
-        description: 検索キーワード
-        maxLength: 256
-      - name: status
-        in: query
-        type: array
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-        items:
-          type: integer
-          enum: [0, 1, 9]
-      - name: companyCode
-        in: query
-        type: string
-        description: 会社コード
-        maxLength: 10
-      - name: implNo
-        in: query
-        type: integer
-        format: int64
-        description: 実施番号
-      - name: revisionNo
-        in: query
-        type: integer
-        format: int64
-        description: リビジョン ※リビジョンの指定がある時は対象リビジョンの全履歴一覧が返却される（それ以外は最新のリビジョン・履歴のレコードのみ）
-      - name: sortBy
-        in: query
-        type: string
-        required: true
-        description: ソートフィールド名
-        maxLength: 64
-      - name: sortDesc
-        in: query
-        type: boolean
-        required: true
-        description: 降順指定の場合true
-      - name: page
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: ページ番号
-      - name: itemsPerPage
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 1ページあたりの件数
-      - name: pastFlg
-        in: query
-        type: boolean
-        description: 過去入力分(入力済み、一時保存)を含むか<br> ※管理者の場合はこのフラグに関わらず含む
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/Answers"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /answer/csv:
-    get:
-      tags:
-      - answer
-      summary: アンケート回答一覧CSVを取得する
-      operationId: getAnswerCsv
-      produces:
-      - application/json
-      parameters:
-      - name: keyword
-        in: query
-        type: string
-        description: 検索キーワード
-        maxLength: 256
-      - name: status
-        in: query
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-      - name: companyCode
-        in: query
-        type: string
-        description: 会社コード
-        maxLength: 10
-      - name: implNo
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 実施番号
-      - name: revisionNo
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: リビジョン
-      - name: sortBy
-        in: query
-        type: string
-        required: true
-        description: ソートフィールド名
-        maxLength: 64
-      - name: sortDesc
-        in: query
-        type: boolean
-        required: true
-        description: 降順指定の場合true
-      - name: page
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: ページ番号
-      - name: itemsPerPage
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 1ページあたりの件数
-      - name: pastFlg
-        in: query
-        type: boolean
-        description: 過去入力分(入力済み、一時保存)を含むか<br> ※管理者の場合はこのフラグに関わらず含む
-      - name: isWithHeader
-        in: query
-        type: boolean
-        description: ヘッダ情報を返却する場合のみtrue
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/AnswerCsvs"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /answer/excel:
-    get:
-      tags:
-      - answer
-      summary: アンケート回答EXCELをダウンロードする
-      operationId: getAnswerExcel
-      produces:
-      - application/json
-      parameters:
-      - name: implNo
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 実施番号
-      - name: revisonNo
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: リビジョン
-      - name: historyNo
-        in: query
-        type: integer
-        format: int64
-        required: true
-        description: 履歴番号
-      - name: companyCode
-        in: query
-        type: string
-        maxLength: 10
-        description: 会社コード
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            type: file
-            description: Excelバイナリデータ
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error"
-  /code:
-    get:
-      tags:
-      - common
-      summary: コードマスタ取得
-      description: コードキーを指定してコードマスタを取得する
-      operationId: getCodes
-      produces:
-      - application/json
-      parameters:
-      - name: key
-        in: query
-        type: string
-        required: true
-        description: コードキー
-      responses:
-        200:
-          description: search successful operation
-          schema:
-            $ref: "#/definitions/Codes"
-        500:
-          description: 予期しないエラー発生
-          schema:
-            $ref: "#/definitions/Error"
-        503:
-          description: RDS接続エラー
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: 入力値エラー
-          schema:
-            $ref: "#/definitions/Error" 
-        403:
-          description: 権限エラー
-          schema:
-            $ref: "#/definitions/Error" 
-        404:
-          description: コードなし
-          schema:
-            $ref: "#/definitions/Error" 
-  
-definitions:
-  Users:
-    type: object
-    properties:
-      nextToken:
-        type: string
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/User"
-  User:
-    type: object
-    required:
-      - username
-      - email
-      - companyCode
-    properties:
-      username:
-        type: string
-        maxLength: 256
-        description: ユーザ名
-      email:
-        type: string
-        maxLength: 256
-        description: メールアドレス
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 会社コード
-      userStatus:
-        type: string
-        description: ユーザー状態
-      role:
-        type: string
-        enum: [admin]
-        description: ロール
-      type:
-        type: string
-        description: ユーザ種別
-      note:
-        type: string
-        description: 備考欄
-      updatedAt:
-        type: string
-        format: datetime
-        description: 最終更新時刻
-      lastUpdatedUser:
-        type: string
-        description: 最終更新ユーザ
-      authEvents:
         type: object
-        description: 認証情報
-  ChangeUserStatus:
-    type: object
-    required:
-      - email
-      - enabled
-    properties:
-      email:
-        type: string
-        maxLength: 256
-        description: メールアドレス
-      enabled:
-        type: boolean
-        description: 有効無効判断用パラメータ
-  DeleteUser:
-    type: object
-    required:
-      - email
-    properties:
-      email:
-        type: string
-        maxLength: 256
-        description: メールアドレス
-  Documents:
-    type: object
-    properties:
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/Document"
-  Document:
-    type: object
-    required:
-      - implNo
-      - revisionNo
-      - title
-    properties:
-      implNo:
-        type: integer
-        format: int64
-        description: 実施番号
-      title:
-        type: string
-        description: 同意書タイトル
-  Signs:
-    type: object
-    properties:
-      allCount:
-        type: integer
-        format: int64
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/Sign"
-  Sign:
-    type: object
-    required:
-      - implNo
-      - revisionNo
-      - title
-    properties:
-      lastUpdateDate:
-        type: string
-        format: date
-        description: 最終更新時刻
-      startDate:
-        type: string
-        format: date
-        description: 実施期間開始日
-      endDate:
-        type: string
-        format: date
-        description: 実施期間終了日
-      requestDate:
-        type: string
-        format: date
-        description: 依頼日
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 会社コード
-      companyName:
-        type: string
-        maxLength: 255
-        description: 会社名
-      implNo:
-        type: integer
-        format: int64
-        description: 実施番号
-      title:
-        type: string
-        description: 同意書タイトル
-      status:
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-  SignCsvs:
-    type: object
-    properties:
-      allCount:
-        type: integer
-        format: int64
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/SignCsv"
-  SignCsv:
-    type: object
-    required:
-      - implNo
-      - revisionNo
-      - companyCode
-      - historyNo
-      - title
-    properties:
-      implNo:
-        type: integer
-        format: int64
-        description: 実施番号
-      title:
-        type: string
-        description: 同意書のタイトル
-      revisionNo:
-        type: integer
-        format: int64
-        description: リビジョン
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 会社コード
-      companyName:
-        type: string
-        maxLength: 255
-        description: 会社名
-      historyNo:
-        type: integer
-        format: int64
-        description: 履歴番号
-      startDate:
-        type: string
-        format: date
-        description: 実施期間開始日
-      endDate:
-        type: string
-        format: date
-        description: 実施期間終了日
-      status:
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-      lastUpdateUser:
-        type: string
-        description: 最終更新者名
-      lastUpdateUserAddress:
-        type: string
-        description: 最終更新者メールアドレス
-      lastUpdateDate:
-        type: string
-        format: date
-        description: 最終更新日
-      signItems:
-        type: array
-        items:
-          type: "string"
-        description: 記名項目
-      sign:
-        type: array
-        items:
-          type: "string"
-        description: 記名内容
-  SignKey:
-    type: object
-    required:
-      - implNo
-      - revisionNo
-      - historyNo
-      - companyCode
-      - version
-    properties:
-      implNo:
-        type: integer
-        format: int64
-        description: 実施番号
-      revisionNo:
-        type: integer
-        format: int64
-        description: リビジョン
-      historyNo:
-        type: integer
-        format: int64
-        description: 履歴番号
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 会社コード
-      version:
-        type: integer
-        format: int64
-        description: バージョン
-  SignDetails:
-    type: object
-    properties:
-      data:
-        description: リビジョン順の配列
-        type: array
-        items:
-          $ref: "#/definitions/SignDetail"
-  SignDetail:
-    type: object
-    required:
-      - signKey
-      - title
-      - status
-    properties:
-      signKey:
-        $ref: "#/definitions/SignKey"
-        description: 記名キー情報
-      companyName:
-        type: string
-        maxLength: 255
-        description: 会社名
-      title:
-        type: string
-        description: 同意書のタイトル
-      contents:
-        type: string
-        description: 同意書の本文
-      message:
-        type: string
-        description: 完了メッセージ
-      signItems:
-        type: array
-        items:
-          type: "string"
-        description: 記名項目
-      startDate:
-        type: string
-        format: date
-        description: 実施期間開始日
-      endDate:
-        type: string
-        format: date
-        description: 実施期間終了日
-      lastUpdateDate:
-        type: string
-        format: date
-        description: 最終更新日
-      sign:
-        type: array
-        items:
-          type: "string"
-        description: 記名内容
-      requestDate:
-        type: string
-        format: date
-        description: 依頼日
-      status:
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-  SignInput:
-    type: object
-    required:
-      - signKey
-      - sign
-      - status
-    properties:
-      signKey:
-        $ref: "#/definitions/SignKey"
-        description: 記名キー情報
-      sign:
-        type: array
-        items:
-          type: "string"
-        description: 記名内容
-      status:
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-  Companies:
-    type: object
-    properties:
-      allCount:
-        type: integer
-        format: int64
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/Company"
-  Company:
-    type: object
-    required:
-      - companyCode
-    properties:
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 会社コード
-      companyName:
-        type: string
-        maxLength: 255
-        description: 会社名
-  CompanyCsvs:
-    type: object
-    properties:
-      allCount:
-        type: integer
-        format: int64
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/CompanyCsv"
-  CompanyCsv:
-    type: object
-    properties:
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 会社コード
-      companyName:
-        type: string
-        maxLength: 255
-        description: 会社名
-      phoneNumber:
-        type: string
-        maxLength: 20
-        description: 電話番号
-      postCode:
-        type: string
-        maxLength: 12
-        description: 郵便番号
-      address:
-        type: string
-        maxLength: 430
-        description: 住所
-      information:
-        type: string
-        enum: [〇]
-        description: 最新の同意書と紐付いていれば〇
-      note:
-        type: string
-        description: 備考
-      lastUpdateUser:
-        type: string
-        description: 最終更新者
-      lastUpdateMailAddress:
-        type: string
-        description: 最終更新者メールアドレス
-      lastUpdatedAt:
-        type: string
-        format: date
-        description: 最終更新時刻
-  CompanyKey:
-    type: object
-    required:
-      - companyCode
-      - version
-    properties:
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 会社コード
-      version:
-        type: integer
-        format: int64
-        description: バージョン
-  CompanyDetails:
-    type: object
-    properties:
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/CompanyDetail"
-  CompanyDetail:
-    type: object
-    properties:
-      companyKey:
-        $ref: "#/definitions/CompanyKey"
-      companyName:
-        type: string
-        maxLength: 255
-        description: 会社名
-      phoneNumber:
-        type: string
-        maxLength: 20
-        description: 電話番号
-      postCode:
-        type: string
-        maxLength: 12
-        description: 郵便番号
-      address:
-        type: string
-        maxLength: 430
-        description: 住所
-      note:
-        type: string
-        description: 備考
-      documentImplNo:
-        type: array
-        description: 同意書実施番号
-        items:
-          type: integer
-          format: int64
-      questionImplNo:
-        type: array
-        description: アンケート実施番号
-        items:
-          type: integer
-          format: int64
-  InformationCsvs:
-    type: object
-    properties:
-      allCount:
-        type: integer
-        format: int64
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/InformationCsv"
-  InformationCsv:
-    type: object
-    required:
-      - informationId
-    properties:
-      informationId:
-        type: integer
-        format: int64
-        description: 連絡事項ID
-      contactInformation:
-        type: string
-        maxLength: 255
-        description: 連絡先
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 連絡先会社コード
-      startDate:
-        type: string
-        format: date
-        description: 公開期間開始日
-      endDate:
-        type: string
-        format: date
-        description: 公開期間終了日
-      releaseDate:
-        type: string
-        format: date
-        description: 公開日
-      isAttach:
-        type: boolean
-        description: 添付データ有無
-      title:
-        type: string
-        maxLength: 255
-        description: タイトル
-      contents:
-        type: string
-        maxLength: 430
-        description: 詳細内容
-      status:
-        type: string
-        enum: [未公開, 公開中, 公開終了]
-        description: 状態
-  Informations:
-    type: object
-    properties:
-      allCount:
-        type: integer
-        format: int64
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/InformationRef"
-  InformationRef:
-    type: object
-    properties:
-      key:
-        $ref: "#/definitions/InformationKey"
-      data:
-        $ref: "#/definitions/Information"
-  InformationInput:
-    type: object
-    properties:
-      key:
-        $ref: "#/definitions/InformationKey"
-      data:
-        $ref: "#/definitions/InformationDetail"
-  InformationKey:
-    type: object
-    required:
-      - informationId
-    properties:
-      informationId:
-        type: integer
-        format: int64
-        description: 連絡事項ID
-      version:
-        type: integer
-        format: int64
-        description: バージョン
-  InformationDetail:
-    type: object
-    properties:
-      startDate:
-        type: string
-        format: date
-        description: 公開期間開始日
-      endDate:
-        type: string
-        format: date
-        description: 公開期間終了日
-      title:
-        type: string
-        maxLength: 255
-        description: タイトル
-      contents:
-        type: string
-        maxLength: 430
-        description: 詳細内容
-      releaseDate:
-        type: string
-        format: date
-        description: 公開日
-      companies:
-        type: array
-        items:
-          $ref: "#/definitions/Company"
-        description: 会社情報
-  Information:
-    type: object
-    properties:
-      startDate:
-        type: string
-        format: date
-        description: 公開期間開始日
-      endDate:
-        type: string
-        format: date
-        description: 公開期間終了日
-      title:
-        type: string
-        maxLength: 255
-        description: タイトル
-      contents:
-        type: string
-        maxLength: 430
-        description: 詳細内容
-      releaseDate:
-        type: string
-        format: date
-        description: 公開日
-      isAttach:
-        type: boolean
-        description: 添付データ有無
-      filename:
-        type: string
-        description: 連絡事項添付データファイル名
-      companies:
-        type: array
-        items:
-          $ref: "#/definitions/Company"
-        description: 会社情報
-  InformationAttachInput:
-    type: object
-    properties:
-      key:
-        $ref: "#/definitions/InformationKey"
-      data:
-        $ref: "#/definitions/InformationAttach"
-  InformationAttach:
-    type: object
-    properties:
-      content:
-        type: string
-        format: binary
-        description: 連絡事項添付データ
-      filename:
-        type: string
-        description: 連絡事項添付データファイル名
-  Questions:
-    type: object
-    properties:
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/Question"
-  Question:
-    type: object
-    required:
-      - implNo
-      - title
-    properties:
-      implNo:
-        type: integer
-        format: int64
-        description: 実施番号
-      title:
-        type: string
-        description: アンケートタイトル
-  Revisions:
-    type: object
-    properties:
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/Revision"
-  Revision:
-    type: object
-    required:
-      - revisionNo
-      - title
-    properties:
-      revisionNo:
-        type: integer
-        format: int64
-        description: リビジョン
-      title:
-        type: string
-        description: リビジョンタイトル
-  AnswerKey:
-    type: object
-    required:
-      - implNo
-      - revisionNo
-      - historyNo
-      - companyCode
-      - version
-    properties:
-      implNo:
-        type: integer
-        format: int64
-        description: 実施番号
-      revisionNo:
-        type: integer
-        format: int64
-        description: リビジョン
-      historyNo:
-        type: integer
-        format: int64
-        description: 履歴番号
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 会社コード
-      version:
-        type: integer
-        format: int64
-        description: バージョン
-  AnswerDetails:
-    type: object
-    properties:
-      data:
-        description: リビジョン順の配列
-        type: array
-        items:
-          $ref: "#/definitions/AnswerDetail"
-  AnswerDetail:
-    type: object
-    required:
-      - answerKey
-      - title
-      - status
-    properties:
-      answerKey:
-        $ref: "#/definitions/AnswerKey"
-        description: 回答キー情報
-      companyName:
-        type: string
-        maxLength: 255
-        description: 会社名
-      title:
-        type: string
-        description: アンケートのタイトル
-      contents:
-        type: string
-        description: アンケートの本文
-      revisionTitle:
-        type: string
-        description: リビジョン名
-      reason:
-        type: string
-        description: 再回答理由
-      message:
-        type: string
-        description: 完了メッセージ
-      startDate:
-        type: string
-        format: date
-        description: 実施期間開始日
-      endDate:
-        type: string
-        format: date
-        description: 実施期間終了日
-      lastUpdateDate:
-        type: string
-        format: date
-        description: 最終更新日
-      answer:
-        type: array
-        items:
-          type: "string"
-        description: 回答内容
-      summary:
-        type: array
-        items:
-          type: "string"
-        description: 集計内容
-      requestDate:
-        type: string
-        format: date
-        description: 依頼日
-      status:
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-  AnswerInput:
-    type: object
-    required:
-      - answerKey
-      - answer
-      - status
-    properties:
-      answerKey:
-        $ref: "#/definitions/AnswerKey"
-        description: 回答キー情報
-      answer:
-        type: array
-        items:
-          type: "string"
-        description: 回答内容
-      summary:
-        type: array
-        items:
-          type: "string"
-        description: 集計内容
-      excel:
-        type: string
-        format: binary
-        description: Excelバイナリデータ
-      status:
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-  Answers:
-    type: object
-    properties:
-      allCount:
-        type: integer
-        format: int64
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/Answer"
-  Answer:
-    type: object
-    required:
-      - implNo
-      - revisionNo
-      - title
-    properties:
-      lastUpdateDate:
-        type: string
-        format: date
-        description: 最終更新時刻
-      startDate:
-        type: string
-        format: date
-        description: 実施期間開始日
-      endDate:
-        type: string
-        format: date
-        description: 実施期間終了日
-      requestDate:
-        type: string
-        format: date
-        description: 依頼日
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 会社コード
-      companyName:
-        type: string
-        maxLength: 255
-        description: 会社名
-      implNo:
-        type: integer
-        format: int64
-        description: 実施番号
-      title:
-        type: string
-        description: アンケートタイトル
-      revisionNo:
-        type: integer
-        format: int64
-        description: リビジョン番号
-      revisionTitle:
-        type: string
-        description: リビジョン名
-      historyNo:
-        type: integer
-        format: int64
-        description: 履歴番号
-      reason:
-        type: string
-        description: 再回答理由
-      status:
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-  AnswerCsvs:
-    type: object
-    properties:
-      allCount:
-        type: integer
-        format: int64
-      header:
-        type: array
-        items:
-          type: "string"
-        description: CSVヘッダ情報(isWithHeaderがtrueの場合のみ)
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/AnswerCsv"
-  AnswerCsv:
-    type: object
-    required:
-      - implNo
-      - revisionNo
-      - companyCode
-      - historyNo
-      - title
-    properties:
-      implNo:
-        type: integer
-        format: int64
-        description: 実施番号
-      title:
-        type: string
-        description: アンケートのタイトル
-      revisionNo:
-        type: integer
-        format: int64
-        description: リビジョン
-      revisionTitle:
-        type: string
-        description: リビジョン名
-      companyCode:
-        type: string
-        maxLength: 10
-        description: 会社コード
-      companyName:
-        type: string
-        maxLength: 255
-        description: 会社名
-      historyNo:
-        type: integer
-        format: int64
-        description: 履歴番号
-      startDate:
-        type: string
-        format: date
-        description: 実施期間開始日
-      endDate:
-        type: string
-        format: date
-        description: 実施期間終了日
-      status:
-        type: integer
-        enum: [0, 1, 9]
-        description: 状態(0:未入力、1:一時保存、9:入力完了)
-      reason:
-        type: string
-        description: 再回答理由
-      lastUpdateUser:
-        type: string
-        description: 最終更新者名
-      lastUpdateUserAddress:
-        type: string
-        description: 最終更新者メールアドレス
-      lastUpdateDate:
-        type: string
-        format: date
-        description: 最終更新日
-      answer:
-        type: array
-        items:
-          type: "string"
-        description: 回答内容
-      summary:
-        type: array
-        items:
-          type: "string"
-        description: 集計内容
-  Error:
-    type: object
-    properties:
-      code:
-        type: integer
-        format: int32
-        description: エラーコード
-      message:
-        type: string
-        description: エラーメッセージ
-  Codes:
-    type: object
-    properties:
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/Code"
-  Code:
-    type: object
-    required:
-      - code
-      - name
-    properties:
-      code:
-        type: string
-        description: コード
-      name:
-        type: string
-        description: 表示名
+        properties:
+            implNo:
+                format: int64
+                description: 実施番号
+                type: integer
+            revisionNo:
+                format: int64
+                description: リビジョン
+                type: integer
+            historyNo:
+                format: int64
+                description: 履歴番号
+                type: integer
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            version:
+                format: int64
+                description: バージョン
+                type: integer
+    SignDetails:
+        type: object
+        properties:
+            data:
+                description: リビジョン順の配列
+                type: array
+                items:
+                    $ref: '#/definitions/SignDetail'
+    SignDetail:
+        required:
+            - signKey
+            - title
+            - titleEnEn
+            - status
+            - requestDate
+        type: object
+        properties:
+            signKey:
+                $ref: '#/definitions/SignKey'
+                description: 記名キー情報
+            companyName:
+                description: 会社名
+                maxLength: 255
+                type: string
+            title:
+                description: 同意書のタイトル(日本語)
+                type: string
+            titleEn:
+                description: 同意書のタイトル(英語)
+                type: string
+            contents:
+                description: 同意書の本文(日本語)
+                type: string
+            contentsEn:
+                description: 同意書の本文(英語)
+                type: string
+            message:
+                description: 完了メッセージ(日本語)
+                type: string
+            messageEn:
+                description: 完了メッセージ(英語)
+                type: string
+            signItems:
+                description: 記名項目(日本語)
+                type: array
+                items:
+                    type: string
+            signItemsEn:
+                description: 記名項目(英語)
+                type: array
+                items:
+                    type: string
+            startDate:
+                format: date
+                description: 実施期間開始日
+                type: string
+            endDate:
+                format: date
+                description: 実施期間終了日
+                type: string
+            lastUpdateDate:
+                format: date
+                description: 最終更新日
+                type: string
+            sign:
+                description: 記名内容
+                type: array
+                items:
+                    type: string
+            requestDate:
+                format: date
+                description: 依頼日
+                type: string
+            status:
+                description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                enum:
+                    - '0'
+                    - '1'
+                    - '9'
+                type: integer
+            signedAt:
+                format: date
+                description: 記名日
+                type: string
+    SignInput:
+        required:
+            - signKey
+            - sign
+            - status
+        type: object
+        properties:
+            signKey:
+                $ref: '#/definitions/SignKey'
+                description: 記名キー情報
+            sign:
+                description: 記名内容
+                type: array
+                items:
+                    type: string
+            status:
+                description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                enum:
+                    - '0'
+                    - '1'
+                    - '9'
+                type: integer
+    Companies:
+        type: object
+        properties:
+            allCount:
+                format: int64
+                type: integer
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/Company'
+    Company:
+        required:
+            - companyCode
+            - gdbCode
+        type: object
+        properties:
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            gdbCode:
+                description: GDBコード
+                maxLength: 10
+                type: string
+            companyName:
+                description: 会社名
+                maxLength: 255
+                type: string
+    CompanyCsvs:
+        type: object
+        properties:
+            allCount:
+                format: int64
+                type: integer
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/CompanyCsv'
+    CompanyCsv:
+        type: object
+        properties:
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            gdbCode:
+                description: GDBコード
+                maxLength: 10
+                type: string
+            companyName:
+                description: 会社名
+                maxLength: 255
+                type: string
+            phoneNumber:
+                description: 電話番号
+                maxLength: 20
+                type: string
+            postCode:
+                description: 郵便番号
+                maxLength: 12
+                type: string
+            address:
+                description: 住所
+                maxLength: 430
+                type: string
+            information:
+                description: 最新の同意書と紐付いていれば〇
+                enum:
+                    - 〇
+                type: string
+            note:
+                description: 備考
+                type: string
+            lastUpdateUser:
+                description: 最終更新者
+                type: string
+            lastUpdateMailAddress:
+                description: 最終更新者メールアドレス
+                type: string
+            lastUpdatedAt:
+                format: date
+                description: 最終更新時刻
+                type: string
+    CompanyKey:
+        required:
+            - companyCode
+            - version
+        type: object
+        properties:
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            version:
+                format: int64
+                description: バージョン
+                type: integer
+    CompanyDetails:
+        type: object
+        properties:
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/CompanyDetail'
+    CompanyDetail:
+        type: object
+        properties:
+            companyKey:
+                $ref: '#/definitions/CompanyKey'
+            companyName:
+                description: 会社名
+                maxLength: 255
+                type: string
+            gdbCode:
+                description: GDBコード
+                maxLength: 10
+                type: string
+            phoneNumber:
+                description: 電話番号
+                maxLength: 20
+                type: string
+            postCode:
+                description: 郵便番号
+                maxLength: 12
+                type: string
+            address:
+                description: 住所
+                maxLength: 430
+                type: string
+            note:
+                description: 備考
+                type: string
+            documentImplNo:
+                description: 同意書実施番号
+                type: array
+                items:
+                    format: int64
+                    type: integer
+            questionImplNo:
+                description: アンケート実施番号
+                type: array
+                items:
+                    format: int64
+                    type: integer
+    InformationCsvs:
+        type: object
+        properties:
+            allCount:
+                format: int64
+                type: integer
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/InformationCsv'
+    InformationCsv:
+        required:
+            - informationId
+        type: object
+        properties:
+            informationId:
+                format: int64
+                description: 連絡事項ID
+                type: integer
+            contactInformation:
+                description: 連絡先
+                maxLength: 255
+                type: string
+            companyCode:
+                description: 連絡先会社コード
+                maxLength: 11
+                type: string
+            startDate:
+                format: date
+                description: 公開期間開始日
+                type: string
+            endDate:
+                format: date
+                description: 公開期間終了日
+                type: string
+            releaseDate:
+                format: date
+                description: 公開日
+                type: string
+            isAttach:
+                description: 日本語添付データ有無
+                type: boolean
+            isAttachEn:
+                description: 英語添付データ有無
+                type: boolean
+            title:
+                description: 日本語タイトル
+                maxLength: 255
+                type: string
+            titleEn:
+                description: 英語タイトル
+                maxLength: 255
+                type: string
+            contents:
+                description: 日本語詳細内容
+                maxLength: 430
+                type: string
+            contentsEn:
+                description: 英語詳細内容
+                maxLength: 430
+                type: string
+            status:
+                description: 状態
+                enum:
+                    - 未公開
+                    - 公開中
+                    - 公開終了
+                type: string
+            filename:
+                description: 日本語連絡事項添付データファイル名
+                type: string
+            filenameEn:
+                description: 英語連絡事項添付データファイル名
+                type: string
+    Informations:
+        type: object
+        properties:
+            allCount:
+                format: int64
+                type: integer
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/InformationRef'
+    InformationRef:
+        type: object
+        properties:
+            key:
+                $ref: '#/definitions/InformationKey'
+            data:
+                $ref: '#/definitions/Information'
+    InformationInput:
+        type: object
+        properties:
+            key:
+                $ref: '#/definitions/InformationKey'
+            data:
+                $ref: '#/definitions/InformationDetail'
+    InformationKey:
+        required:
+            - informationId
+        type: object
+        properties:
+            informationId:
+                format: int64
+                description: 連絡事項ID
+                type: integer
+            version:
+                format: int64
+                description: バージョン
+                type: integer
+    InformationDetail:
+        type: object
+        properties:
+            startDate:
+                format: date
+                description: 公開期間開始日
+                type: string
+            endDate:
+                format: date
+                description: 公開期間終了日
+                type: string
+            title:
+                description: 日本語タイトル
+                maxLength: 255
+                type: string
+            titleEn:
+                description: 英語タイトル
+                maxLength: 255
+                type: string
+            contents:
+                description: 日本語詳細内容
+                maxLength: 430
+                type: string
+            contentsEn:
+                description: 英語詳細内容
+                maxLength: 430
+                type: string
+            releaseDate:
+                format: date
+                description: 公開日
+                type: string
+            companies:
+                description: 会社情報
+                type: array
+                items:
+                    $ref: '#/definitions/Company'
+    Information:
+        type: object
+        properties:
+            startDate:
+                format: date
+                description: 公開期間開始日
+                type: string
+            endDate:
+                format: date
+                description: 公開期間終了日
+                type: string
+            title:
+                description: 日本語タイトル
+                maxLength: 255
+                type: string
+            titleEn:
+                description: 英語タイトル
+                maxLength: 255
+                type: string
+            contents:
+                description: 日本語詳細内容
+                maxLength: 430
+                type: string
+            contentsEn:
+                description: 英語詳細内容
+                maxLength: 430
+                type: string
+            releaseDate:
+                format: date
+                description: 公開日
+                type: string
+            isAttach:
+                description: 日本語添付データ有無
+                type: boolean
+            isAttachEn:
+                description: 英語添付データ有無
+                type: boolean
+            filename:
+                description: 日本語連絡事項添付データファイル名
+                type: string
+            filenameEn:
+                description: 英語連絡事項添付データファイル名
+                type: string
+            companies:
+                description: 会社情報
+                type: array
+                items:
+                    $ref: '#/definitions/Company'
+    InformationAttachInput:
+        type: object
+        properties:
+            key:
+                $ref: '#/definitions/InformationKey'
+            data:
+                $ref: '#/definitions/InformationAttach'
+    InformationAttach:
+        type: object
+        properties:
+            filename:
+                description: 連絡事項添付データファイル名
+                type: string
+            isJp:
+                description: 日本語ファイルの場合はtrue
+                type: boolean
+    Questions:
+        type: object
+        properties:
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/Question'
+    Question:
+        required:
+            - implNo
+            - title
+        type: object
+        properties:
+            implNo:
+                format: int64
+                description: 実施番号
+                type: integer
+            title:
+                description: アンケートタイトル(日本語)
+                type: string
+            titleEn:
+                description: アンケートタイトル(英語)
+                type: string
+    Revisions:
+        type: object
+        properties:
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/Revision'
+    Revision:
+        required:
+            - revisionNo
+            - title
+        type: object
+        properties:
+            revisionNo:
+                format: int64
+                description: リビジョン
+                type: integer
+            title:
+                description: リビジョンタイトル(日本語)
+                type: string
+            titleEn:
+                description: リビジョンタイトル(英語)
+                type: string
+    AnswerKey:
+        required:
+            - implNo
+            - revisionNo
+            - historyNo
+            - companyCode
+            - version
+        type: object
+        properties:
+            implNo:
+                format: int64
+                description: 実施番号
+                type: integer
+            revisionNo:
+                format: int64
+                description: リビジョン
+                type: integer
+            historyNo:
+                format: int64
+                description: 履歴番号
+                type: integer
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            version:
+                format: int64
+                description: バージョン
+                type: integer
+    AnswerDetails:
+        type: object
+        properties:
+            data:
+                description: リビジョン順の配列
+                type: array
+                items:
+                    $ref: '#/definitions/AnswerDetail'
+    AnswerDetail:
+        required:
+            - answerKey
+            - title
+            - status
+        type: object
+        properties:
+            answerKey:
+                $ref: '#/definitions/AnswerKey'
+                description: 回答キー情報
+            companyName:
+                description: 会社名
+                maxLength: 255
+                type: string
+            title:
+                description: アンケートのタイトル(日本語)
+                type: string
+            titleEn:
+                description: アンケートのタイトル(英語)
+                type: string
+            contents:
+                description: アンケートの本文(日本語)
+                type: string
+            contentsEn:
+                description: アンケートの本文(英語)
+                type: string
+            revisionTitle:
+                description: リビジョン名(日本語)
+                type: string
+            revisionTitleEn:
+                description: リビジョン名(英語)
+                type: string
+            reason:
+                description: 再回答理由
+                type: string
+            message:
+                description: 完了メッセージ(日本語)
+                type: string
+            messageEn:
+                description: 完了メッセージ(英語)
+                type: string
+            startDate:
+                format: date
+                description: 実施期間開始日
+                type: string
+            endDate:
+                format: date
+                description: 実施期間終了日
+                type: string
+            lastUpdateDate:
+                format: date
+                description: 最終更新日
+                type: string
+            answeredAt:
+                format: date
+                description: 回答時刻
+                type: string
+            answer:
+                description: 回答内容
+                type: array
+                items:
+                    type: string
+            summary:
+                description: 集計内容
+                type: array
+                items:
+                    type: string
+            requestDate:
+                format: date
+                description: 依頼日
+                type: string
+            status:
+                description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                enum:
+                    - '0'
+                    - '1'
+                    - '9'
+                type: integer
+    AnswerInput:
+        required:
+            - answerKey
+            - answer
+            - status
+        type: object
+        properties:
+            answerKey:
+                $ref: '#/definitions/AnswerKey'
+                description: 回答キー情報
+            answer:
+                description: 回答内容
+                type: array
+                items:
+                    type: string
+            summary:
+                description: 集計内容
+                type: array
+                items:
+                    type: string
+            excel:
+                format: binary
+                description: Excelバイナリデータ
+                type: string
+            status:
+                description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                enum:
+                    - '0'
+                    - '1'
+                    - '9'
+                type: integer
+    Answers:
+        type: object
+        properties:
+            allCount:
+                format: int64
+                type: integer
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/Answer'
+    Answer:
+        required:
+            - implNo
+            - revisionNo
+            - title
+        type: object
+        properties:
+            lastUpdateDate:
+                format: date
+                description: 最終更新時刻
+                type: string
+            startDate:
+                format: date
+                description: 実施期間開始日
+                type: string
+            endDate:
+                format: date
+                description: 実施期間終了日
+                type: string
+            answeredAt:
+                format: date
+                description: 回答日
+                type: string
+            requestDate:
+                format: date
+                description: 依頼日
+                type: string
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            companyName:
+                description: 会社名
+                maxLength: 255
+                type: string
+            implNo:
+                format: int64
+                description: 実施番号
+                type: integer
+            title:
+                description: アンケートタイトル(日本語)
+                type: string
+            titleEn:
+                description: アンケートタイトル(英語)
+                type: string
+            revisionNo:
+                format: int64
+                description: リビジョン番号
+                type: integer
+            revisionTitle:
+                description: リビジョン名(日本語)
+                type: string
+            revisionTitleEn:
+                description: リビジョン名(英語)
+                type: string
+            historyNo:
+                format: int64
+                description: 履歴番号
+                type: integer
+            reason:
+                description: 再回答理由
+                type: string
+            status:
+                description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                enum:
+                    - '0'
+                    - '1'
+                    - '9'
+                type: integer
+    AnswerCsvs:
+        type: object
+        properties:
+            allCount:
+                format: int64
+                type: integer
+            header:
+                description: CSVヘッダ情報(isWithHeaderがtrueの場合のみ)
+                type: array
+                items:
+                    type: string
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/AnswerCsv'
+    AnswerCsv:
+        required:
+            - implNo
+            - revisionNo
+            - companyCode
+            - historyNo
+            - title
+        type: object
+        properties:
+            implNo:
+                format: int64
+                description: 実施番号
+                type: integer
+            title:
+                description: アンケートのタイトル(日本語)
+                type: string
+            titleEn:
+                description: アンケートのタイトル(英語)
+                type: string
+            revisionNo:
+                format: int64
+                description: リビジョン
+                type: integer
+            revisionTitle:
+                description: リビジョン名(日本語)
+                type: string
+            revisionTitleEn:
+                description: リビジョン名(英語)
+                type: string
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            companyName:
+                description: 会社名
+                maxLength: 255
+                type: string
+            historyNo:
+                format: int64
+                description: 履歴番号
+                type: integer
+            startDate:
+                format: date
+                description: 実施期間開始日
+                type: string
+            endDate:
+                format: date
+                description: 実施期間終了日
+                type: string
+            answeredAt:
+                format: date
+                description: 回答日
+                type: string
+            requestDate:
+                format: date
+                description: 依頼日
+                type: string
+            status:
+                description: '状態(0:未入力、1:一時保存、9:入力完了)'
+                enum:
+                    - '0'
+                    - '1'
+                    - '9'
+                type: integer
+            reason:
+                description: 再回答理由
+                type: string
+            lastUpdateUser:
+                description: 最終更新者名
+                type: string
+            lastUpdateUserAddress:
+                description: 最終更新者メールアドレス
+                type: string
+            lastUpdateDate:
+                format: date
+                description: 最終更新日
+                type: string
+            answer:
+                description: 回答内容
+                type: array
+                items:
+                    type: string
+            summary:
+                description: 集計内容
+                type: array
+                items:
+                    type: string
+    Error:
+        type: object
+        properties:
+            code:
+                format: int32
+                description: エラーコード
+                type: integer
+            message:
+                description: エラーメッセージ
+                type: string
+    Codes:
+        type: object
+        properties:
+            data:
+                type: array
+                items:
+                    $ref: '#/definitions/Code'
+    Code:
+        required:
+            - code_value
+            - display_name
+        type: object
+        properties:
+            code_value:
+                description: コード
+                type: string
+            display_name:
+                description: 表示名(日本語)
+                type: string
+            display_name_en:
+                description: 表示名(英語)
+                type: string
+    AnswerKeyWithReason:
+        description: 再回答依頼内容付きのキー
+        required:
+            - implNo
+            - revisionNo
+            - historyNo
+            - companyCode
+            - version
+            - reason
+        type: object
+        properties:
+            implNo:
+                format: int64
+                description: 実施番号
+                type: integer
+            revisionNo:
+                format: int64
+                description: リビジョン
+                type: integer
+            historyNo:
+                format: int64
+                description: 履歴番号
+                type: integer
+            companyCode:
+                description: 会社コード
+                maxLength: 11
+                type: string
+            version:
+                format: int64
+                description: バージョン
+                type: integer
+            reason:
+                description: 再回答理由
+                type: string
+tags:
+    -
+        name: document
+    -
+        name: sign
+    -
+        name: company
+    -
+        name: information
+    -
+        name: user
+    -
+        name: common

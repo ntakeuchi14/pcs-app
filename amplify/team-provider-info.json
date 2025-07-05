@@ -1,0 +1,34 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-pcsapp-dev-ebea5-authRole",
+      "UnauthRoleArn": "arn:aws:iam::449725522907:role/amplify-pcsapp-dev-ebea5-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::449725522907:role/amplify-pcsapp-dev-ebea5-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-pcsapp-dev-ebea5-deployment",
+      "UnauthRoleName": "amplify-pcsapp-dev-ebea5-unauthRole",
+      "StackName": "amplify-pcsapp-dev-ebea5",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:449725522907:stack/amplify-pcsapp-dev-ebea5/224cda00-596b-11f0-9de0-0a8316b00c43",
+      "AmplifyAppId": "d30l0m4x13f6mp",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-pcsapp-dev-ebea5-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
+    },
+    "categories": {
+      "auth": {
+        "pcsappe15969e7": {}
+      },
+      "function": {
+        "DelegateFunction": {
+          "deploymentBucketName": "amplify-pcsapp-dev-ebea5-deployment",
+          "s3Key": "amplify-builds/DelegateFunction-725a38773178616f4d56-build.zip"
+        },
+        "pcsappe15969e7": {}
+      },
+      "api": {
+        "PcsAPI": {}
+      },
+      "storage": {
+        "s3a0d1675e": {}
+      }
+    }
+  }
+}

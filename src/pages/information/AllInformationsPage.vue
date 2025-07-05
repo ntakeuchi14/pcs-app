@@ -192,7 +192,6 @@
   import PageCount from '@/components/parts/PageCount.vue'
   import InformationDownload from '@/components/modules/InformationDownload.vue'
   
-  import { API } from "aws-amplify";
   import * as Const from '@/const.js'
   const apiName = 'PcsAPI';
 
@@ -403,8 +402,7 @@
         if (this.status !== null) {
           myInit.queryStringParameters.status = this.status
         }
-        await API
-          .get(apiName, path, myInit)
+        await this.apiGet(apiName, path, myInit)
           .then(response => {
             this.items = response.data
             this.allCount = response.allCount
@@ -473,8 +471,7 @@
         const b = true
 
          while (b) {
-           const result = await API
-               .get(apiName, path, myInit)
+           const result = await this.apiGet(apiName, path, myInit)
                .then(response => {
                    return response
                })

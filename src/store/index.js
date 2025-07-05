@@ -7,6 +7,7 @@ export default new Vuex.Store({
   state: {
     user: null,
     searchParams: [],
+    selectedCompanyCode: undefined,
   },
   getters: {
     check(state) { 
@@ -30,11 +31,17 @@ export default new Vuex.Store({
     },
     getSearchParams(state) {
       return state.searchParams
-    }
+    },
+    getSelectedCompanyCode(state) {
+      return state.selectedCompanyCode
+    },
   },
   mutations: {
     setUser(state, user) {
       state.user = user
+      if( null === user ) {
+        state.selectedCompanyCode = undefined
+      }
     },
     setSearchParams(state, payload) {
       state.searchParams = payload
@@ -44,6 +51,9 @@ export default new Vuex.Store({
     },
     getCompanyCode() {
       return this.user.attributes["preferred_username"]
+    },
+    setSelectedCompanyCode(state, code) {
+      state.selectedCompanyCode = code
     }
   },
   actions: {

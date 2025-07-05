@@ -2,7 +2,7 @@
     <div id="wrapper" v-if="isAdmin">
                 <PageTitle id="pageTitle">{{pageTitle}}</PageTitle>
             
-                <v-form ref="form" v-model="valid" lazy-validation>
+                <v-form ref="form" v-model="valid">
                     <div id="inputforms">                        
                         <v-row justify="start">
                             <v-col cols="1">
@@ -135,7 +135,7 @@
     
 </template>
 <script>
-    import { API, Hub } from 'aws-amplify';
+    import { Hub } from 'aws-amplify';
     const apiName = 'PcsAPI';
     import * as Const from '@/const.js'
 
@@ -233,8 +233,7 @@
                     }
                 };
 
-                API
-                    .post(apiName, path, myInit)
+                this.apiPost(apiName, path, myInit)
                     .then(function() {
                         const message = this.$t('messageSnackBar.createSucceed')
                         this.$router.push({ name: 'adminCompanies', params: { snackbarState: "success", snackbarMessage: message } });
@@ -285,8 +284,7 @@
                     },
                 };
                 
-                API
-                    .put(apiName, path, myInit)
+                this.apiPut(apiName, path, myInit)
                     .then(function() {
                         const message = this.$t('messageSnackBar.updateSucceed')
                         this.$router.push({ name: 'adminCompanies', params: { snackbarState: "success", snackbarMessage: message } });
@@ -331,8 +329,7 @@
                         companyCodes: this.company_id
                     },
                 }
-                const response = await API
-                    .get(apiName, path, myInit)
+                const response = await this.apiGet(apiName, path, myInit)
                     .finally(() => {
                         Hub.dispatch('OverlayChannel', { event: 'end' })
                     })

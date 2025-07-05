@@ -24,7 +24,9 @@
     </v-toolbar-title>
     <v-spacer></v-spacer>
     <p class="mr-2 mb-0">
-      <span style="max-width: 500px;" class="d-inline-block text-truncate">{{ companyName }}</span>
+      <span style="max-width: 500px;" class="d-inline-block">
+        <v-select v-model="selectedCompanyCode" :items="companies"  item-text="companyName" item-value="companyKey.companyCode" underlined @change="changeCompany" max-width="500px"></v-select>
+      </span>
       <span style="max-width: 300px;" class="px-2 d-inline-block text-truncate">{{ userName }}</span>
     </p>
     <SelectLang/>
@@ -32,7 +34,6 @@
 </template>
 
 <script>
-  import { API } from "aws-amplify";
   import SelectLang from '@/components/modules/SelectLang'
 
   const apiName = 'PcsAPI';
@@ -43,7 +44,8 @@
     },
     data () {
       return {
-        companyName: '',
+        companies: [],
+        selectedCompanyCode: undefined,
         userName: '',
       }
     },
@@ -61,15 +63,20 @@
       async getName() {
         const path = '/company/me'
         if (this.currentCompanyCode) {
-          await API
-            .get(apiName, path)
+          await this.apiGet(apiName, path)
             .then(response => {
-                this.companyName = response.companyName
+                this.companies = response
+                this.$store.commit('setSelectedCompanyCode', response[0].companyKey.companyCode)
+                this.selectedCompanyCode = this.$store.getters.getSelectedCompanyCode
             })
         }
         // 会社名と同時にユーザー名を描画したいため
         this.userName = this.$store.getters.getUsername
       },
+      changeCompany(code) {
+        this.$store.commit('setSelectedCompanyCode', code)
+        this.$router.push({ path: '/dummy' }).then(()=>this.$router.push({ path: '/dashboard' }));
+      }
     },
   }
 </script>

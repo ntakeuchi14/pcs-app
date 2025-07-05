@@ -102,8 +102,6 @@
 </div>
 </template>
 <script>
-    import { API } from 'aws-amplify';
-
     import SwitchableSnackbars from '@/components/modules/SwitchableSnackbars.vue'
     import PageTitle from '@/components/parts/PageTitle'
     
@@ -226,8 +224,7 @@
                     }
                 };
 
-                const result = await API
-                    .get(apiName, path, myInit)
+                const result = await this.apiGet(apiName, path, myInit)
                     .then(response => {
                         return response
                     })
@@ -266,8 +263,7 @@
                 const b = true
 
                 while (b) {
-                    const result = await API
-                        .get(apiName, path, myInit)
+                    const result = await this.apiGet(apiName, path, myInit)
                         .then(response => {
                             return response
                         })

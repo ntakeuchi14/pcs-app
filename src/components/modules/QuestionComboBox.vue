@@ -32,7 +32,6 @@
         </v-autocomplete>
 </template>
 <script>
-    import { API } from 'aws-amplify';
     const apiName = 'PcsAPI';
 
     export default {
@@ -60,8 +59,7 @@
         },
         methods: {
             async getQuestionAsync() {
-                await API
-                    .get(apiName, '/question')
+                await this.apiGet(apiName, '/question')
                     .then(function(response) {
                         this.data = response.data
                     }.bind(this))

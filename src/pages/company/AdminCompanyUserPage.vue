@@ -181,7 +181,6 @@
     
 </template>
 <script>
-    import { API } from 'aws-amplify';
     const apiName = 'PcsAPI';
     import * as Const from '@/const.js'
     import SwitchableSnackbars from '@/components/modules/SwitchableSnackbars.vue'
@@ -287,7 +286,7 @@
         },
         methods: {
             async getCompany() {
-                const response = await API.get(apiName, '/company', {queryStringParameters: {companyCodes: this.company_id}})
+                const response = await this.apiGet(apiName, '/company', {queryStringParameters: {companyCodes: this.company_id}})
                 this.company = response.data[0]
             },
             pushAdminAllCompanies() {
@@ -305,7 +304,7 @@
                     };
                     const b = true;
                     while (b) {
-                        const result = await API.get(apiName, '/user', { queryStringParameters: params })
+                        const result = await this.apiGet(apiName, '/user', { queryStringParameters: params })
                         result.data.forEach(u => {
                             if( u.enabled ) {
                                 enabledUsers.push(u)
@@ -353,13 +352,13 @@
                         this.userLoading = true;
                         try {
                             for( const user of this.enabledUsers ) {
-                                await API.patch(apiName, '/user', { body: {email: user.email, enabled: true} }).catch(e=>console.error(e.message))
+                                await this.apiPatch(apiName, '/user', { body: {email: user.email, enabled: true} }).catch(e=>console.error(e.message))
                             }
                             for( const user of this.disabledUsers ) {
-                                await API.patch(apiName, '/user', { body: {email: user.email, enabled: false} }).catch(e=>console.error(e.message))
+                                await this.apiPatch(apiName, '/user', { body: {email: user.email, enabled: false} }).catch(e=>console.error(e.message))
                             }
                             for( const user of this.deleteUsers ) {
-                                await API.del(apiName, '/user', { body: {email: user.email} }).catch(e=>console.error(e.message))
+                                await this.apiDel(apiName, '/user', { body: {email: user.email} }).catch(e=>console.error(e.message))
                             }
                         } finally {
                             await this.sleep(500)
@@ -374,7 +373,7 @@
             },
             async getUserTypes() {
                 this.userLoading = true
-                this.userTypeCodes = await API.get(apiName, '/code', { 
+                this.userTypeCodes = await this.apiGet(apiName, '/code', { 
                     queryStringParameters: {
                         key: Const.CODE_KEYS.USER_TYPE
                     }})

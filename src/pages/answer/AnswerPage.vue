@@ -327,7 +327,7 @@
   import Overlay from '@/components/parts/Overlay'
   import ReturnIndexButton from '@/components/parts/ReturnIndexButton'
 
-  import { API, Hub } from "aws-amplify"
+  import { Hub } from "aws-amplify"
   import { ANSWER, EXCEL_MIME_TYPE } from "@/const.js";
 
   const apiName = 'PcsAPI'
@@ -602,7 +602,7 @@
       async getAnswer(reload=true) {
         Hub.dispatch('OverlayChannel', { event: 'start' })            
         try {
-          const response =  await API.get(apiName, '/answer', {
+          const response =  await this.apiGet(apiName, '/answer', {
             queryStringParameters: {
               implNo: this.getImplNo,
               companyCode: this.isAdmin ? this.getCompanyCode : undefined
@@ -635,7 +635,7 @@
           
           // 一般ユーザーのみ
           if ( !this.formatAnswerString && !this.isAdmin) {
-            const formatExcel = await API.get(apiName, '/question/excel', {
+            const formatExcel = await this.apiGet(apiName, '/question/excel', {
               queryStringParameters: {
                 implNo: Number(this.getImplNo),
                 revisionNo: this.answerItems[0].answerKey.revisionNo
@@ -665,7 +665,7 @@
         this.snackbarMessage = this.$t('messageSnackBar.startExcelDownload')
         this.snackbarSucceed = true
         try {
-          const response = await API.get(apiName, '/question/excel', {
+          const response = await this.apiGet(apiName, '/question/excel', {
             queryStringParameters: {
               implNo: Number(this.getImplNo),
               revisionNo: this.answerItems[this.page].answerKey.revisionNo
@@ -704,7 +704,7 @@
         this.snackbarMessage = this.$t('messageSnackBar.startAnswerExcelDownload')
         this.snackbarSucceed = true
         try {
-          const response = await API.get(apiName, '/answer/excel', {
+          const response = await this.apiGet(apiName, '/answer/excel', {
             queryStringParameters: {
               implNo: this.getImplNo,
               revisionNo: target.revisionNo,
@@ -737,8 +737,7 @@
         this.modalDisabled = true
         
         Hub.dispatch('OverlayChannel', { event: 'start' })
-        await API
-          .post(apiName, '/answer', {
+        await this.apiPost(apiName, '/answer', {
               body: {
                 answerKey: this.answerItems[0].answerKey,
                 answer: this.answerItems[0].answer,
@@ -783,8 +782,7 @@
         this.modalDisabled = true
 
         Hub.dispatch('OverlayChannel', { event: 'start' })
-        await API
-          .patch(apiName, '/answer', { body: this.answerItems[0].answerKey })
+        await this.apiPatch(apiName, '/answer', { body: this.answerItems[0].answerKey })
           .then(() => {
               this.snackbarMessage = this.$t('messageSnackBar.questionRejectSucceed')
               this.snackbarSucceed = true
@@ -814,8 +812,7 @@
         this.modalDisabled = true
 
         Hub.dispatch('OverlayChannel', { event: 'start' })
-        await API
-          .put(apiName, '/answer', {
+        await this.apiPut(apiName, '/answer', {
           body:{
             implNo:this.answerItems[0].answerKey.implNo,
             revisionNo:	this.answerItems[0].answerKey.revisionNo,

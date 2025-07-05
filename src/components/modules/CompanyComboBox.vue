@@ -42,7 +42,6 @@
     </v-textarea>
 </template>
 <script>
-    import { API } from 'aws-amplify';
     const apiName = 'PcsAPI';
     
     export default {
@@ -79,8 +78,7 @@
         },
         methods: {
             async getCompaniesAsync() {
-                await API
-                    .get(apiName, '/company/all')
+                await this.apiGet(apiName, '/company/all')
                     .then(function(response) {
                         this.items = this.formatResponse(response)
                     }.bind(this))

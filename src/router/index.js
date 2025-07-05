@@ -74,6 +74,10 @@ const routes = [{
     meta: { requireAuth: true }
   },
   {
+    path: '/dummy',
+    name: 'dummy'
+  },
+  {
     path: '/dashboard',
     name: 'dashboard',
     component: Dashboard,

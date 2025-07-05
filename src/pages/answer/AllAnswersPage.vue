@@ -126,7 +126,6 @@
   import QuestionComboBox from '@/components/modules/QuestionComboBox.vue'
   import PageCount from '@/components/parts/PageCount.vue'
 
-  import { API } from "aws-amplify";
   import * as Const from '@/const.js'
 
   const apiName = 'PcsAPI';
@@ -371,8 +370,7 @@
           myInit.queryStringParameters.revisionNo = this.revisionNo
         }
 
-        await API
-          .get(apiName, path, myInit)
+        await this.apiGet(apiName, path, myInit)
           .then(response => {
             this.answers = response.data
             this.allCount = response.allCount
@@ -440,8 +438,7 @@
         this.revisionItems = []
 
         if(this.implNo) {
-          await API
-            .get(apiName, '/question/revisions', {
+          await this.apiGet(apiName, '/question/revisions', {
             queryStringParameters: {
               implNo: this.implNo
             },
@@ -494,8 +491,7 @@
         const b = true
         while (b) {
 
-          const result = await API
-            .get(apiName, path, myInit)
+          const result = await this.apiGet(apiName, path, myInit)
             .then(response => {
               return response
             })
@@ -511,7 +507,7 @@
         }
 
         // 該当アンケートのフォーマット取得
-        const excelRsp = await API.get(apiName, '/question/excel', { queryStringParameters: { implNo: this.implNo, revisionNo: this.revisionNo } });
+        const excelRsp = await this.apiGet(apiName, '/question/excel', { queryStringParameters: { implNo: this.implNo, revisionNo: this.revisionNo } });
         const excelBlob = await fetch(this.refConst.BASE64_HEADER + excelRsp.file).then(response => response.blob())
         const excelBuf = await excelBlob.arrayBuffer();
         const header = await this.getExcelDataForCsv(excelBuf, "ref-csv-header");
@@ -565,7 +561,7 @@
         })
 
         // CSV出力
-        const impl = (await API.get(apiName, '/question', {})).data.filter(_ => _.impl_no === this.implNo)[0];
+        const impl = (await this.apiGet(apiName, '/question', {})).data.filter(_ => _.impl_no === this.implNo)[0];
         const date = this.$moment().format(Const.DATE.FORMAT_D);
         this.csvDownload(csvData, mappingHeaders, `${this.implNo}_${this.isJp ? impl.title : impl.titleEn}_${this.revisionNo}_${date}.csv`, false, replaceHeaders)
         

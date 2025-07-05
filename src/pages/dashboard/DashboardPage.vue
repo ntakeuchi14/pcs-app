@@ -157,7 +157,6 @@
 <script>
   import PageTitle from '@/components/parts/PageTitle'
   import InformationDownload from '@/components/modules/InformationDownload.vue'
-  import { API } from "aws-amplify";
   import * as Const from '@/const.js'
 
   const apiName = 'PcsAPI';
@@ -265,12 +264,24 @@
           },
         ]
       },
+      selectedCompanyCode() {
+        return this.$store.state.selectedCompanyCode
+      }
     },
     mounted() {
-      if (!this.isAdmin) {
+      if (!this.isAdmin && this.selectedCompanyCode ) {
         this.getSigns()
         this.getInformations()
         this.getAnswers()
+      }
+    },
+    watch: {
+      selectedCompanyCode() {
+        if (!this.isAdmin && this.selectedCompanyCode ) {
+          this.getSigns()
+          this.getInformations()
+          this.getAnswers()
+        }
       }
     },
     methods: {
@@ -288,8 +299,7 @@
             itemsPerPage: this.refConst.SIGN.DASHBOARD_MAX_COUNT,
           }
          }
-         await API
-           .get(apiName, path, myInit)
+         await this.apiGet(apiName, path, myInit)
            .then(response => {
              this.signs.items = response.data
            })
@@ -307,8 +317,7 @@
             itemsPerPage: this.refConst.INFORMATION.DASHBOARD_MAX_COUNT,
           }
          }
-         await API
-           .get(apiName, path, myInit)
+         await this.apiGet(apiName, path, myInit)
            .then(response => {
              this.informations.items = response.data
            })
@@ -331,8 +340,7 @@
             itemsPerPage: this.refConst.ANSWER.DASHBOARD_MAX_COUNT,
           }
          }
-         await API
-           .get(apiName, path, myInit)
+         await this.apiGet(apiName, path, myInit)
            .then(response => {
              this.answers.items = response.data
            })

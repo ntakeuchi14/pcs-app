@@ -5,27 +5,12 @@
 
         <v-form v-model="valid">
             <div id="inputforms">
-                <v-row v-if="!presetCode">
+                <v-row>
                     <v-col cols="1">
                         <RequiredItemChip />
                     </v-col>
                     <v-col cols="11" class="form">
-                        <CompanyComboBox @select="selectCompany" :multiple="false" :returnObject="false" :selectRules="selectRules" :companyCode.sync="companyCode"/>
-                    </v-col>
-                </v-row>
-                
-                <v-row v-else>
-                    <v-col cols="1">
-                        <v-chip class="ma-2" label text-color="white" small>
-                            {{$t('common.required')}}
-                        </v-chip>
-                    </v-col>
-                    <v-col cols="11" class="form">
-                        <v-text-field
-                        v-model="companyName"
-                        :label="$t('common.company')"
-                        disabled
-                        ></v-text-field>
+                        <CompanyComboBox @select="selectCompany" :multiple="true" :returnObject="false" :selectRules="selectRules" :companyCode.sync="companyCode"/>
                     </v-col>
                 </v-row>
                 
@@ -150,7 +135,7 @@
 
     </template>
 <script>
-    import { API, Hub } from 'aws-amplify';
+    import { Hub } from 'aws-amplify';
     const apiName = 'PcsAPI';
     import * as Const from '@/const.js'
 
@@ -257,8 +242,7 @@
                     },
                 };
 
-                await API
-                    .post(apiName, path, myInit)
+                await this.apiPost(apiName, path, myInit)
                     .then(() => {
                         this.pushAfterCompletion()
 
@@ -309,8 +293,7 @@
                     },
                 };
 
-                await API
-                    .put(apiName, path, myInit)
+                await this.apiPut(apiName, path, myInit)
                     .then(() => {
                         this.pushAfterCompletion()
 
@@ -379,8 +362,7 @@
                         companyCodes: this.presetCode
                     },
                 }
-                const response = await API
-                    .get(apiName, path, myInit)
+                const response = await this.apiGet(apiName, path, myInit)
 
                 Hub.dispatch('OverlayChannel', { event: 'end' })
                 return response.data[0].companyName
@@ -394,7 +376,7 @@
             },
             async getUser(mail) {
                 Hub.dispatch('OverlayChannel', { event: 'start' })
-                const result = await API.get(apiName, '/user', { 
+                const result = await this.apiGet(apiName, '/user', { 
                     queryStringParameters: {
                         keyword: mail,
                         searchType: 'email',
@@ -412,7 +394,7 @@
             },
             async getUserTypes() {
                 Hub.dispatch('OverlayChannel', { event: 'start' })
-                this.userTypeCodes = await API.get(apiName, '/code', { 
+                this.userTypeCodes = await this.apiGet(apiName, '/code', { 
                     queryStringParameters: {
                         key: Const.CODE_KEYS.USER_TYPE
                     }})

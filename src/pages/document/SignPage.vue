@@ -202,7 +202,7 @@
   import Overlay from '@/components/parts/Overlay'
   import ReturnIndexButton from '@/components/parts/ReturnIndexButton'
 
-  import { API, Hub } from "aws-amplify"
+  import { Hub } from "aws-amplify"
   import { SIGN, FORM } from '@/const.js'
 
   const apiName = 'PcsAPI'
@@ -314,8 +314,7 @@
       },
       async getSign() {
         Hub.dispatch('OverlayChannel', { event: 'start' })
-        await API
-          .get(apiName, '/sign', {
+        await this.apiGet(apiName, '/sign', {
               queryStringParameters: {
                 implNo: this.getImplNo,
                 companyCode: this.isAdmin ? this.getCompanyCode:undefined
@@ -336,8 +335,7 @@
         Hub.dispatch('OverlayChannel', { event: 'start' })
         this.overlay = true
         this.modalDisabled = true
-        await API
-          .post(apiName, '/sign', {
+        await this.apiPost(apiName, '/sign', {
               body: {
                 signKey: this.items[0].signKey,
                 sign: JSON.stringify({sign: this.parseSigns}),
@@ -374,8 +372,7 @@
         Hub.dispatch('OverlayChannel', { event: 'start' })
         this.overlay = true
         this.modalDisabled = true
-        await API
-          .patch(apiName, '/sign', {
+        await this.apiPatch(apiName, '/sign', {
               body: this.items[0].signKey
             })
           .then(() => {
@@ -403,8 +400,7 @@
         Hub.dispatch('OverlayChannel', { event: 'start' })
         this.overlay = true
         this.modalDisabled = true
-        await API
-          .put(apiName, '/sign', {
+        await this.apiPut(apiName, '/sign', {
               body: this.items[0].signKey
             })
           .then(() => {

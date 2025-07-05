@@ -101,7 +101,7 @@ const addUser = async (poolId, info) => {
   if (info.companyCode) {
     attrs.push({
       Name: COMPANY_CODE,
-      Value: info.companyCode,
+      Value: info.companyCode.join(','),
     });
   }
   if (info.type) {
@@ -186,6 +186,57 @@ const adminListUserAuthEvents = async(poolId, username, next) => {
   return data
 };
 
+const addGroup = async(poolId, groupname, name) => {
+  try {
+    await cognitoidp.createGroup({
+        UserPoolId: poolId,
+        GroupName: groupname,
+      }).promise();
+  } catch (e) {
+    if( e.code !== 'GroupExistsException') {
+      throw e
+    }
+  }
+  await cognitoidp.adminAddUserToGroup({
+      UserPoolId: poolId,
+      GroupName: groupname,
+      Username: name,
+    }).promise();
+}
+
+const delGroup = async(poolId, groupname, name) => {
+  await cognitoidp.adminRemoveUserFromGroup({
+      UserPoolId: poolId,
+      GroupName: groupname,
+      Username: name,
+    }).promise();
+  const g = await cognitoidp.listUsersInGroup({
+      UserPoolId: poolId,
+      GroupName: groupname,
+      Limit: 1
+    }).promise();
+  if( g.Users.length === 0 ) {
+    await cognitoidp.deleteGroup({
+        UserPoolId: poolId,
+        GroupName: groupname,
+      }).promise();
+  }
+}
+
+const listUsersInGroup = async(
+  poolId,
+  limit,
+  paginationToken,
+  groupname) => {
+  const data = await cognitoidp.listUsersInGroup({
+      UserPoolId: poolId,
+      GroupName: groupname,
+      Limit: limit,
+      NextToken: paginationToken
+    }).promise();
+  return data;
+}
+
 exports.getUser = getUser;
 exports.listAdminUsers = listAdminUsers;
 exports.listAllActiveUsers = listAllActiveUsers;
@@ -195,3 +246,6 @@ exports.changeUserStatus = changeUserStatus;
 exports.updateUserAttributes = updateUserAttributes;
 exports.deleteUserAttributes = deleteUserAttributes;
 exports.adminListUserAuthEvents = adminListUserAuthEvents;
+exports.addGroup = addGroup;
+exports.delGroup = delGroup;
+exports.listUsersInGroup = listUsersInGroup;

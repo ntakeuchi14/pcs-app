@@ -40,6 +40,33 @@ exports.handler = async (event) => {
   const companyCode = userInfo.UserAttributes.filter(
     (_) => _.Name === COMPANY_CODE
   );
+  
+  // 一般ユーザの場合は複数会社の場合は指定した会社として処理
+  if(0 === userInfo.groups.filter(g => g === ADMIN_GROUP_NAME).length && event.path !== "/company/me") {
+    const selectedCompanyCode = event.queryStringParameters?.selectedCompanyCode
+    if (!selectedCompanyCode || companyCode.length === 0) {
+      return {
+        statusCode: RESULT_CODE.ACCESS_DENIED,
+        headers: HEADERS,
+        body: JSON.stringify({
+          code: RESULT_CODE.ACCESS_DENIED,
+          message: "ACCESS_DENIED",
+        }),
+      };
+    }
+    if( companyCode[0].Value.split(',').filter(c=>c===selectedCompanyCode).length !== 1 ) {
+      return {
+        statusCode: RESULT_CODE.ACCESS_DENIED,
+        headers: HEADERS,
+        body: JSON.stringify({
+          code: RESULT_CODE.ACCESS_DENIED,
+          message: "ACCESS_DENIED",
+        }),
+      };
+    }
+    companyCode[0].Value = selectedCompanyCode
+  }
+
   const name = userInfo.UserAttributes.filter(
     (_) => _.Name === SEARCH_TYPE.name
   );
@@ -57,7 +84,7 @@ exports.handler = async (event) => {
     };
   }
   //- 一般ユーザは会社コードが必須
-  if (0 === userInfo.groups.length && 0 === companyCode.length) {
+  if (0 === userInfo.groups.filter(g => g === ADMIN_GROUP_NAME).length && 0 === companyCode.length) {
     return {
       statusCode: RESULT_CODE.APP_ERROR,
       headers: HEADERS,

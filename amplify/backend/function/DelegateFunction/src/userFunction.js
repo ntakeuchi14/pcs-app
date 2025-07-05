@@ -15,6 +15,10 @@ exports.main = async (
   bodyParams,
   poolId
 ) => {
+  console.log("commonParams", commonParams);
+  console.log("bodyParams", bodyParams);
+  console.log("queryParams", queryParams);
+  
   switch (method) {
     case "GET":
       return await listUsers(commonParams, queryParams, poolId);
@@ -48,21 +52,10 @@ const listUsers = async (commonParams, params, poolId) => {
         message: "invalid search params",
       }),
     };
-  }
-  const adminUsers = await cognitoFunction.listAdminUsers(poolId);
-  let attr = params.searchType && params.keyword ? SEARCH_TYPE[params.searchType] : undefined
-  let keyword = params.keyword
-  if( params.companyCode ) {
-    attr = COMPANY_CODE
-    keyword = params.companyCode
-  }
-  if( commonParams.role !== ROLE_NAME.ADMIN ) {
-    attr = COMPANY_CODE
-    keyword = commonParams.companyCode
-  }
-  
+  }  
   let users = {}
   if( commonParams.role == ROLE_NAME.ADMIN && params.withAuthEvents && params.searchType===SEARCH_TYPE.email && params.keyword ) {
+    // ユーザ情報取得の場合
     const userInfo = await cognitoFunction.getUser(poolId, params.keyword);
     users = {
       Users: [{
@@ -75,33 +68,57 @@ const listUsers = async (commonParams, params, poolId) => {
       }]
     }
   } else {
-    users = await cognitoFunction.listAllActiveUsers(
-      poolId,
-      params.limit,
-      params.nextToken,
-      attr,
-      keyword
-    );
-    if( commonParams.role == ROLE_NAME.ADMIN ) {
-      if( params.companyCode && params.searchType && params.keyword ) {
-        users.Users = users.Users.filter(u=>{
-          if( SEARCH_TYPE[params.searchType] === SEARCH_TYPE.status) {
-            return u.Enabled === (params.keyword === 'Enabled')
-          } else if( SEARCH_TYPE[params.searchType] === SEARCH_TYPE.userStatus) {
-            return u.UserStatus === params.keyword
-          } else {
-            const values = u.Attributes.filter((_) => _.Name === SEARCH_TYPE[params.searchType]);
-            return values.length > 0 && values[0].Value.startsWith(params.keyword)
-          }
-        })
-      }
-    } else {
+    // ユーザ一覧の場合(画面のみ)
+    if(commonParams.role !== ROLE_NAME.ADMIN) {
+      // 一般ユーザの場合はグループ内のユーザを返す
+      users = await cognitoFunction.listUsersInGroup(
+        poolId,
+        params.limit,
+        params.nextToken,
+        commonParams.companyCode
+      );
       users.Users = users.Users.filter(u=>u.Enabled )
+    } else {
+      // 管理ユーザの場合（画面, CSV)
+      const attr = params.searchType && params.keyword ? SEARCH_TYPE[params.searchType] : undefined
+      const keyword = params.keyword
+      if(params.companyCode) {
+        // 会社絞り込みがある場合はグループ内のユーザを取得(limit内に収まる前提)
+        users = await cognitoFunction.listUsersInGroup(
+          poolId,
+          params.limit,
+          params.nextToken,
+          params.companyCode
+        );
+        // 第２条件はロジックで絞る
+        if( params.searchType && params.keyword ) {
+          users.Users = users.Users.filter(u=>{
+            if( SEARCH_TYPE[params.searchType] === SEARCH_TYPE.status) {
+              return u.Enabled === (params.keyword === 'Enabled')
+            } else if( SEARCH_TYPE[params.searchType] === SEARCH_TYPE.userStatus) {
+              return u.UserStatus === params.keyword
+            } else {
+              const values = u.Attributes.filter((_) => _.Name === SEARCH_TYPE[params.searchType]);
+              return values.length > 0 && values[0].Value.startsWith(params.keyword)
+            }
+          })
+        }
+      } else {
+        // 会社絞り込みがない場合は全ユーザ
+        users = await cognitoFunction.listAllActiveUsers(
+          poolId,
+          params.limit,
+          params.nextToken,
+          attr,
+          keyword
+        );
+      }
     }
   }
   
   let authEvents = []
   if( commonParams.role == ROLE_NAME.ADMIN && params.withAuthEvents ) {
+    // ユーザ情報取得の場合
     try {
       for( const u of users.Users) {
         const email = u.Attributes.filter((_) => _.Name === SEARCH_TYPE.email);
@@ -124,6 +141,8 @@ const listUsers = async (commonParams, params, poolId) => {
       authEvents = []
     }
   }
+
+  const adminUsers = await cognitoFunction.listAdminUsers(poolId);
   return {
     statusCode: RESULT_CODE.SUCCESS,
     headers: HEADERS,
@@ -174,6 +193,9 @@ const addUser = async (params, poolId) => {
   }
   try {
     await cognitoFunction.addUser(poolId, params);
+    for( const c of params.companyCode){
+      await cognitoFunction.addGroup(poolId, c, params.email);
+    }
   } catch (e) {
     if (400 === e.statusCode) {
       if ("UsernameExistsException" === e.code) {
@@ -220,6 +242,10 @@ const editUser = async (commonParams, params, poolId) => {
   }
   const attrs = [
     {
+      Name: COMPANY_CODE,
+      Value: params.companyCode.join(',')
+    },
+    {
       Name: SEARCH_TYPE.name,
       Value: params.username
     },
@@ -247,6 +273,14 @@ const editUser = async (commonParams, params, poolId) => {
   }
   await cognitoFunction.updateUserAttributes(poolId, params.email, attrs);
   await cognitoFunction.deleteUserAttributes(poolId, params.email, deleteAttrs);
+  const userInfo = await cognitoFunction.getUser(poolId, params.email);
+  const groups = userInfo.groups.filter(g=>params.companyCode.indexOf(g)===-1);
+  for( const g of groups) {
+    await cognitoFunction.delGroup(poolId, g, params.email);
+  }
+  for( const c of params.companyCode){
+    await cognitoFunction.addGroup(poolId, c, params.email);
+  }
   return {
     statusCode: RESULT_CODE.SUCCESS,
     headers: HEADERS,
@@ -272,6 +306,10 @@ const deleteUser = async (commonParams, params, poolId) => {
         message: "can't delete current user",
       }),
     };
+  }
+  const userInfo = await cognitoFunction.getUser(poolId, params.email);
+  for( const g of userInfo.groups) {
+    await cognitoFunction.delGroup(poolId, g, params.email);
   }
   await cognitoFunction.delUser(poolId, params.email);
   return {
@@ -332,7 +370,7 @@ const changeUserStatus = async (commonParams, params, poolId) => {
   
   if( commonParams.role !== ROLE_NAME.ADMIN  ) {
       const companyCodes = userInfo.UserAttributes.filter(e=>e.Name === COMPANY_CODE);
-      if( companyCodes.length === 0 || companyCodes[0].Value !== commonParams.companyCode ) {
+      if( companyCodes.length === 0 || companyCodes[0].Value.split(',').filter(c => c===commonParams.companyCode).length === 0 ) {
         return {
           statusCode: RESULT_CODE.ACCESS_DENIED,
           headers: HEADERS,
