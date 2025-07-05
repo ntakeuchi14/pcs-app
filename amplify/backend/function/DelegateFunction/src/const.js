@@ -4,7 +4,7 @@ module.exports = {
   INITIAL_PASSWORD: "abcd1234",
   
   // InvokeするRDSfunctionのARN
-  INVOKE_FUNC_ARN: "arn:aws:lambda:ap-northeast-1:193473838513:function:RDSfunction-test",
+  INVOKE_FUNC_ARN: "arn:aws:lambda:ap-northeast-1:449725522907:function:RDSfunction",
 
   // ユーザ検索タイプのcognito属性
   SEARCH_TYPE: {
