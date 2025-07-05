@@ -84,9 +84,9 @@
                 :no-data-text="$t('message.nodata')"
                 >
                 <template v-slot:item.companyCode="{ item }">
-                    <div v-for="(it, index) in item.companies" :key="`c${index}`" v-if="it">
+                    <div v-for="(it, index) in item.companies" :key="`c${index}`">
                         <!-- <span >{{ it.gdbCode }}</span><br> -->
-                        <span
+                        <span  v-if="it"
                             class="d-inline-block text-truncate"
                             style="max-width: 300px;"
                         >
